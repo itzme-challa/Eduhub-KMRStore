@@ -4,6 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Rating from './Rating';
 
+// Constants for default values
+const DEFAULT_IMAGE = '/images/default-book.jpg';
+const DEFAULT_PRICE = 10;
+
 export default function ProductCard({ product }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,6 +23,10 @@ export default function ProductCard({ product }) {
     script.async = true;
     script.onload = () => console.log('Cashfree SDK loaded');
     document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
   }, []);
 
   const handleInputChange = (e) => {
@@ -47,6 +55,7 @@ export default function ProductCard({ product }) {
     if (!validateForm()) return;
 
     setIsLoading(true);
+
     try {
       const response = await fetch('/api/createOrder', {
         method: 'POST',
@@ -54,8 +63,8 @@ export default function ProductCard({ product }) {
         body: JSON.stringify({
           productId: product.id,
           productName: product.name,
-          amount: product.price,
-          telegramLink: product.telegramLink,
+          amount: product.price || DEFAULT_PRICE, // Use default price of 10
+          telegramLink: product.telegramLink || product.link || '',
           customerName: formData.customerName,
           customerEmail: formData.customerEmail,
           customerPhone: formData.customerPhone,
@@ -66,15 +75,18 @@ export default function ProductCard({ product }) {
       if (!response.ok || !data.success) {
         throw new Error(data.error || 'Failed to create payment order');
       }
+
       const paymentSessionId = data.paymentSessionId;
       if (!window?.Cashfree || !paymentSessionId) {
         throw new Error('Cashfree SDK not loaded or session missing');
       }
+
       const cashfree = window.Cashfree({ mode: 'production' });
       cashfree.checkout({
         paymentSessionId,
         redirectTarget: '_self',
       });
+
       setFormData({ customerName: '', customerEmail: '', customerPhone: '' });
       setIsModalOpen(false);
     } catch (error) {
@@ -87,9 +99,9 @@ export default function ProductCard({ product }) {
   return (
     <div className="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-105">
       <Link href={`/products/${product.id}`}>
-        <div className="image-container relative w-full h-64">
+        <div className="image-container relative w-full h-64 cursor-pointer">
           <Image
-            src={product.image || '/default-book.jpg'}
+            src={product.image || DEFAULT_IMAGE} // Use constant for default image
             alt={product.name}
             fill
             className="object-cover"
@@ -97,16 +109,23 @@ export default function ProductCard({ product }) {
           />
         </div>
       </Link>
+
       <div className="content p-6 flex flex-col">
         <Link href={`/products/${product.id}`}>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2 hover:text-indigo-600 transition-colors">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2 hover:text-indigo-600 transition-colors cursor-pointer">
             {product.name}
           </h2>
         </Link>
+
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
-        <Rating rating={product.rating} />
+
+        {/* Show Rating only if rating exists */}
+        {typeof product.rating === 'number' ? <Rating rating={product.rating} /> : null}
+
         <div className="flex justify-between items-center mt-4">
-          <span className="text-2xl font-bold text-indigo-600">₹{product.price}</span>
+          <span className="text-2xl font-bold text-indigo-600">
+            ₹{product.price ?? DEFAULT_PRICE} {/* Use default price of 10 */}
+          </span>
           <button
             onClick={() => setIsModalOpen(true)}
             disabled={isLoading}
@@ -122,7 +141,14 @@ export default function ProductCard({ product }) {
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
@@ -145,7 +171,10 @@ export default function ProductCard({ product }) {
             <h2 className="text-xl font-semibold mb-4">Enter Your Details</h2>
             <form onSubmit={handleBuyNow} className="space-y-4">
               <div>
-                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="customerName"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name
                 </label>
                 <input
@@ -154,12 +183,16 @@ export default function ProductCard({ product }) {
                   name="customerName"
                   value={formData.customerName}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 />
               </div>
+
               <div>
-                <label htmlFor="customerEmail" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="customerEmail"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email
                 </label>
                 <input
@@ -168,12 +201,16 @@ export default function ProductCard({ product }) {
                   name="customerEmail"
                   value={formData.customerEmail}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 />
               </div>
+
               <div>
-                <label htmlFor="customerPhone" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="customerPhone"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Phone (10 digits)
                 </label>
                 <input
@@ -182,10 +219,13 @@ export default function ProductCard({ product }) {
                   name="customerPhone"
                   value={formData.customerPhone}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   required
+                  pattern="\d{10}"
+                  title="Please enter exactly 10 digits"
                 />
               </div>
+
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"
