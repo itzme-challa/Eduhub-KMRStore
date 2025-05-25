@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // Constants for default values
 const DEFAULT_IMAGE = '/images/default-book.jpg';
 const DEFAULT_PRICE = 10;
-const DEFAULT_RATING = 0;
+const DEFAULT_RATING = 4.2;
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -35,7 +35,7 @@ export default function Home() {
         const materialProducts = transformMaterialToProducts(materialData, maxProductId);
         const allProducts = [...(productsData || []), ...materialProducts];
         setProducts(allProducts);
-        setFilteredProducts(allProducts); // Initialize filtered products
+        setFilteredProducts(allProducts);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -61,7 +61,7 @@ export default function Home() {
         category,
         price: DEFAULT_PRICE, // Default price of 10
         image: DEFAULT_IMAGE, // Default image
-        rating: DEFAULT_RATING, // Default rating of 0
+        rating: Number((Math.random() * (5.0 - DEFAULT_RATING) + DEFAULT_RATING).toFixed(1)), // Random rating between 4.2 and 5.0
       }))
     );
   }
