@@ -1,46 +1,34 @@
-import { useState } from 'react';
-import { FaSearch, FaTimes } from 'react-icons/fa';
+// SearchBar.jsx
+import React from 'react';
 
 export default function SearchBar({ onSearch }) {
-  const [query, setQuery] = useState('');
-
   const handleInputChange = (e) => {
-    const value = e.target.value;
-    setQuery(value);
-    onSearch(value);
-  };
-
-  const clearSearch = () => {
-    setQuery('');
-    onSearch('');
+    onSearch(e.target.value);
   };
 
   return (
-    <div className="relative max-w-3xl mx-auto mb-12 px-4 sm:px-6 md:px-0">
-      <div className="relative flex items-center bg-white/90 backdrop-blur-md rounded-full shadow-xl border-2 border-transparent bg-clip-padding bg-gradient-to-r from-indigo-500 to-purple-500 p-0.5 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-opacity-50">
-        <div className="flex items-center w-full bg-white rounded-full">
-          <span className="pl-5 text-indigo-600">
-            <FaSearch className="h-5 w-5" aria-hidden="true" />
-          </span>
-          <input
-            type="text"
-            value={query}
-            onChange={handleInputChange}
-            placeholder="Search books, materials, or categories..."
-            className="w-full px-4 py-3 text-gray-900 bg-transparent focus:outline-none placeholder-gray-500 font-medium text-sm sm:text-base md:text-lg transition-colors duration-200"
-            aria-label="Search products by name, description, or category"
-          />
-          {query && (
-            <button
-              onClick={clearSearch}
-              className="pr-5 text-gray-600 hover:text-indigo-600 focus:outline-none transition-colors duration-200"
-              aria-label="Clear search query"
-            >
-              <FaTimes className="h-5 w-5" />
-            </button>
-          )}
-        </div>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-indigo-100 to-purple-100 opacity-30 rounded-full" />
+    <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex items-center bg-white border-2 border-gray-200 rounded-full p-2 shadow-sm focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-opacity-30 transition-all">
+        <svg
+          className="w-5 h-5 text-gray-500 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"
+          ></path>
+        </svg>
+        <input
+          type="text"
+          className="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-400 placeholder-italic"
+          placeholder="Search books, materials, or categories..."
+          onChange={handleInputChange}
+        />
       </div>
     </div>
   );
