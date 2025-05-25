@@ -6,6 +6,9 @@ import Rating from '../../components/Rating';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
+// Define constant for default image path
+const DEFAULT_IMAGE = '/images/default-book.jpg';
+
 export default function ProductDetail() {
   const router = useRouter();
   const { id } = router.query;
@@ -22,56 +25,55 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!id) return;
 
-    async function loadProduct() {
+    async function loadData() {
+      setIsLoading(true);
       try {
-        const [productRes, materialRes] = await Promise.all([
-          fetch('/products.json').then(res => res.json()),
-          fetch('/material.json').then(res => res.json())
-        ]);
+        // Fetch products.json
+        const productsRes = await fetch('/products.json');
+        const productsData = await productsRes.json();
 
-        let found = productRes.find(p => p.id === parseInt(id));
-        if (found) {
-          setProduct(found);
-          setIsLoading(false);
-          return;
-        }
+        // Fetch material.json
+        const materialRes = await fetch('/material.json');
+        const materialData = await materialRes.json();
 
-        // If not found, try to extract from material.json
-        for (const section of materialRes) {
-          for (const item of section.items) {
-            if (item.key === id) {
-              const generatedProduct = {
-                id: id,
-                name: item.label,
-                description: `${item.label} from ${section.title}`,
-                category: 'NEET, JEE, BOARDS',
-                price: 29,
-                author: 'EduHubKMR',
-                features: [
-                  'PDF + Telegram Access',
-                  'Instant Delivery After Payment',
-                  'Works on Any Device'
-                ],
-                telegramLink: `https://t.me/Material_eduhubkmrbot?start=${id}`,
-                rating: 4.5,
-                image: '/default-book.jpg'
-              };
-              setProduct(generatedProduct);
-              setIsLoading(false);
-              return;
-            }
-          }
-        }
+        // Process materialData into product-like array with unique IDs
+        const maxProductId = productsData.reduce((maxId, p) => Math.max(maxId, p.id), 0);
+        let nextId = maxProductId + 1;
 
-        setProduct(null);
-        setIsLoading(false);
+        const materialProducts = [];
+        materialData.forEach((category) => {
+          category.items.forEach((item) => {
+            materialProducts.push({
+              id: nextId++,
+              name: item.label,
+              description: `${category.title} - ${item.label}`,
+              category: 'Premium Materials',
+              price: 10,
+              rating: 0,
+              author: '',
+              features: [],
+              telegramLink: `https://t.me/Material_eduhubkmrbot?start=${item.key}`,
+              image: DEFAULT_IMAGE, // Use constant for default image
+            });
+          });
+        });
+
+        // Combine products + materialProducts
+        const combinedProducts = [...productsData, ...materialProducts];
+
+        // Find product by id (id param is string, product.id is number)
+        const foundProduct = combinedProducts.find((p) => p.id === parseInt(id));
+
+        setProduct(foundProduct || null);
       } catch (error) {
-        console.error('Error loading product:', error);
+        console.error('Error loading product or material:', error);
+        setProduct(null);
+      } finally {
         setIsLoading(false);
       }
     }
 
-    loadProduct();
+    loadData();
   }, [id]);
 
   useEffect(() => {
@@ -127,15 +129,15 @@ export default function ProductDetail() {
       if (!response.ok || !data.success) {
         throw new Error(data.error || 'Failed to create payment order');
       }
-
       const paymentSessionId = data.paymentSessionId;
       if (!window?.Cashfree || !paymentSessionId) {
         throw new Error('Cashfree SDK not loaded or session missing');
       }
-
       const cashfree = window.Cashfree({ mode: 'production' });
-      cashfree.checkout({ paymentSessionId, redirectTarget: '_self' });
-
+      cashfree.checkout({
+        paymentSessionId,
+        redirectTarget: '_self',
+      });
       setFormData({ customerName: '', customerEmail: '', customerPhone: '' });
       setIsModalOpen(false);
     } catch (error) {
@@ -167,9 +169,9 @@ export default function ProductDetail() {
       <main className="product-detail flex-grow">
         <div className="container mx-auto px-4">
           <div className="product-container grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="image-container">
+            <div className="image-container relative w-full h-80 lg:h-96">
               <Image
-                src={product.image || '/default-book.jpg'}
+                src={product.image || DEFAULT_IMAGE} // Use constant for default image
                 alt={product.name}
                 fill
                 className="object-cover"
@@ -181,23 +183,27 @@ export default function ProductDetail() {
               <Rating rating={product.rating} />
               <p>{product.description}</p>
               <div className="meta">
-                <p><strong>Author:</strong> {product.author}</p>
+                <p><strong>Author:</strong> {product.author || 'N/A'}</p>
                 <p><strong>Category:</strong> {product.category}</p>
               </div>
-              <div className="features">
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Features:</h3>
-                <ul className="list-disc list-inside space-y-1 text-gray-600">
-                  {product.features.map((feature, index) => (
-                    <li key={index}>{feature}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="flex items-center space-x-6">
-                <span className="price">₹{product.price}</span>
+              {product.features && product.features.length > 0 && (
+                <div className="features">
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">Features:</h3>
+                  <ul className="list-disc list-inside space-y-1 text-gray-600">
+                    {product.features.map((feature, index) => (
+                      <li key={index}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="flex items-center space-x-6 mt-4">
+                <span className="price text-xl font-bold">₹{product.price}</span>
                 <button
                   onClick={() => setIsModalOpen(true)}
                   disabled={isBuying}
-                  className={`buy-button ${isBuying ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  className={`buy-button px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition ${
+                    isBuying ? 'opacity-75 cursor-not-allowed' : ''
+                  }`}
                 >
                   {isBuying ? (
                     <span className="flex items-center">
@@ -227,26 +233,71 @@ export default function ProductDetail() {
       </main>
       <Footer />
 
+      {/* Modal for User Details */}
       {isModalOpen && (
         <div className="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="modal-content bg-white rounded-lg p-6 max-w-md w-full">
             <h2 className="text-xl font-semibold mb-4">Enter Your Details</h2>
             <form onSubmit={handleBuyNow} className="space-y-4">
               <div>
-                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" id="customerName" name="customerName" value={formData.customerName} onChange={handleInputChange} className="mt-1 block w-full" required />
+                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="customerName"
+                  name="customerName"
+                  value={formData.customerName}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  required
+                />
               </div>
               <div>
-                <label htmlFor="customerEmail" className="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="customerEmail" name="customerEmail" value={formData.customerEmail} onChange={handleInputChange} className="mt-1 block w-full" required />
+                <label htmlFor="customerEmail" className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="customerEmail"
+                  name="customerEmail"
+                  value={formData.customerEmail}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  required
+                />
               </div>
               <div>
-                <label htmlFor="customerPhone" className="block text-sm font-medium text-gray-700">Phone (10 digits)</label>
-                <input type="tel" id="customerPhone" name="customerPhone" value={formData.customerPhone} onChange={handleInputChange} className="mt-1 block w-full" required />
+                <label htmlFor="customerPhone" className="block text-sm font-medium text-gray-700">
+                  Phone (10 digits)
+                </label>
+                <input
+                  type="tel"
+                  id="customerPhone"
+                  name="customerPhone"
+                  value={formData.customerPhone}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  required
+                />
               </div>
               <div className="flex justify-end space-x-2">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors">Cancel</button>
-                <button type="submit" disabled={isLoading} className={`px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}>{isLoading ? 'Processing...' : 'Proceed to Payment'}</button>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isBuying}
+                  className={`px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors ${
+                    isBuying ? 'opacity-75 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isBuying ? 'Processing...' : 'Proceed to Payment'}
+                </button>
               </div>
             </form>
           </div>
