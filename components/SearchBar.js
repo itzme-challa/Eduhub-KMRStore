@@ -16,29 +16,31 @@ export default function SearchBar({ onSearch }) {
   };
 
   return (
-    <div className="relative max-w-2xl mx-auto mb-10 px-4 sm:px-0">
-      <div className="relative flex items-center bg-white rounded-xl shadow-lg border border-indigo-200 overflow-hidden transition-all duration-300 hover:shadow-xl focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-        <span className="pl-4 text-indigo-600">
-          <FaSearch className="h-5 w-5" aria-hidden="true" />
-        </span>
-        <input
-          type="text"
-          value={query}
-          onChange={handleInputChange}
-          placeholder="Search books, materials, or categories..."
-          className="w-full px-4 py-3 text-gray-800 bg-transparent focus:outline-none placeholder-gray-400 text-sm sm:text-base"
-          aria-label="Search products by name, description, or category"
-        />
-        {query && (
-          <button
-            onClick={clearSearch}
-            className="pr-4 text-gray-500 hover:text-indigo-600 focus:outline-none transition-colors duration-200"
-            aria-label="Clear search query"
-          >
-            <FaTimes className="h-5 w-5" />
-          </button>
-        )}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-indigo-50 to-purple-50 opacity-50" />
+    <div className="w-full flex justify-center px-4 mb-10">
+      <div className="w-full max-w-3xl relative">
+        <div className="flex items-center bg-white rounded-2xl shadow-[0_10px_30px_rgba(80,72,229,0.15)] border border-gray-200 hover:shadow-[0_12px_36px_rgba(80,72,229,0.25)] transition-all duration-300 focus-within:ring-2 focus-within:ring-indigo-400">
+          <span className="pl-5 text-indigo-500">
+            <FaSearch className="w-5 h-5" />
+          </span>
+          <input
+            type="text"
+            value={query}
+            onChange={handleInputChange}
+            placeholder="Search books, materials, or categories..."
+            className="w-full px-4 py-3 text-gray-800 bg-transparent focus:outline-none placeholder-gray-400 text-base sm:text-lg"
+            aria-label="Search products"
+          />
+          {query && (
+            <button
+              onClick={clearSearch}
+              className="pr-5 text-gray-400 hover:text-indigo-500 transition-colors duration-200"
+              aria-label="Clear search query"
+            >
+              <FaTimes className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+        <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-r from-indigo-50 via-purple-50 to-transparent opacity-70" />
       </div>
     </div>
   );
