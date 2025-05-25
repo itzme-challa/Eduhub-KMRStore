@@ -16,31 +16,31 @@ export default function SearchBar({ onSearch }) {
   };
 
   return (
-    <div className="w-full flex justify-center px-4 mb-10">
-      <div className="w-full max-w-3xl relative">
-        <div className="flex items-center bg-white rounded-2xl shadow-[0_10px_30px_rgba(80,72,229,0.15)] border border-gray-200 hover:shadow-[0_12px_36px_rgba(80,72,229,0.25)] transition-all duration-300 focus-within:ring-2 focus-within:ring-indigo-400">
-          <span className="pl-5 text-indigo-500">
-            <FaSearch className="w-5 h-5" />
+    <div className="relative max-w-3xl mx-auto mb-12 px-4 sm:px-6 md:px-0">
+      <div className="relative flex items-center bg-white/90 backdrop-blur-md rounded-full shadow-xl border-2 border-transparent bg-clip-padding bg-gradient-to-r from-indigo-500 to-purple-500 p-0.5 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-opacity-50">
+        <div className="flex items-center w-full bg-white rounded-full">
+          <span className="pl-5 text-indigo-600">
+            <FaSearch className="h-5 w-5" aria-hidden="true" />
           </span>
           <input
             type="text"
             value={query}
             onChange={handleInputChange}
             placeholder="Search books, materials, or categories..."
-            className="w-full px-4 py-3 text-gray-800 bg-transparent focus:outline-none placeholder-gray-400 text-base sm:text-lg"
-            aria-label="Search products"
+            className="w-full px-4 py-3 text-gray-900 bg-transparent focus:outline-none placeholder-gray-500 font-medium text-sm sm:text-base md:text-lg transition-colors duration-200"
+            aria-label="Search products by name, description, or category"
           />
           {query && (
             <button
               onClick={clearSearch}
-              className="pr-5 text-gray-400 hover:text-indigo-500 transition-colors duration-200"
+              className="pr-5 text-gray-600 hover:text-indigo-600 focus:outline-none transition-colors duration-200"
               aria-label="Clear search query"
             >
-              <FaTimes className="w-5 h-5" />
+              <FaTimes className="h-5 w-5" />
             </button>
           )}
         </div>
-        <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-r from-indigo-50 via-purple-50 to-transparent opacity-70" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-indigo-100 to-purple-100 opacity-30 rounded-full" />
       </div>
     </div>
   );
