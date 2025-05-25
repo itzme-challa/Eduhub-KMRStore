@@ -49,7 +49,7 @@ export default function ProductDetail() {
               description: `${category.title} - ${item.label}`,
               category: 'Premium Materials',
               price: 10,
-              rating: 0,
+              rating: 4,
               author: '',
               features: [],
               telegramLink: `https://t.me/Material_eduhubkmrbot?start=${item.key}`,
