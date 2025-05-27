@@ -190,7 +190,7 @@
     "id": 12,
     "name": "Allen Physics Handbook",
     "description": "Quick reference Physics handbook by Allen for NEET/JEE revision.",
-    "price": 5,
+    "price": 15,
     "image": "images/allen-handbook.jpg",
     "telegramLink": "https://t.me/Material_eduhubkmrbot?start=allen-physics-handbook",
     "features": [
@@ -207,7 +207,7 @@
     "id": 13,
     "name": "Allen Chemistry Handbook",
     "description": "Handy chemistry handbook from Allen to boost NEET/JEE preparation.",
-    "price": 5,
+    "price": 15,
     "image": "images/allen-handbook.jpg",
     "telegramLink": "https://t.me/Material_eduhubkmrbot?start=allen-chemistry-handbook",
     "features": [
@@ -224,7 +224,7 @@
     "id": 14,
     "name": "Allen Biology Handbook",
     "description": "Allen's biology handbook containing high-yield NEET topics in condensed form.",
-    "price": 5,
+    "price": 15,
     "image": "images/allen-handbook.jpg",
     "telegramLink": "https://t.me/Material_eduhubkmrbot?start=allen-biology-handbook",
     "features": [
@@ -241,7 +241,7 @@
     "id": 15,
     "name": "Allen Maths Handbook",
     "description": "Maths handbook by Allen for JEE aspirants to revise formulas and tricks.",
-    "price": 5,
+    "price": 15,
     "image": "images/allen-handbook.jpg",
     "telegramLink": "https://t.me/Material_eduhubkmrbot?start=allen-maths-handbook",
     "features": [
