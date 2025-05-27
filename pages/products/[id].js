@@ -6,9 +6,6 @@ import Rating from '../../components/Rating';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
-// Define constant for default image path
-const DEFAULT_IMAGE = '/images/default-book.jpg';
-
 export default function ProductDetail() {
   const router = useRouter();
   const { id } = router.query;
@@ -23,57 +20,19 @@ export default function ProductDetail() {
   });
 
   useEffect(() => {
-    if (!id) return;
-
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        // Fetch products.json
-        const productsRes = await fetch('/products.json');
-        const productsData = await productsRes.json();
-
-        // Fetch material.json
-        const materialRes = await fetch('/material.json');
-        const materialData = await materialRes.json();
-
-        // Process materialData into product-like array with unique IDs
-        const maxProductId = productsData.reduce((maxId, p) => Math.max(maxId, p.id), 0);
-        let nextId = maxProductId + 1;
-
-        const materialProducts = [];
-        materialData.forEach((category) => {
-          category.items.forEach((item) => {
-            materialProducts.push({
-              id: nextId++,
-              name: item.label,
-              description: `${category.title} - ${item.label}`,
-              category: 'Premium Materials',
-              price: 10,
-              rating: 4,
-              author: '',
-              features: [],
-              telegramLink: `https://t.me/Material_eduhubkmrbot?start=${item.key}`,
-              image: DEFAULT_IMAGE, // Use constant for default image
-            });
-          });
+    if (id) {
+      fetch('/products.json')
+        .then((res) => res.json())
+        .then((data) => {
+          const foundProduct = data.find((p) => p.id === parseInt(id));
+          setProduct(foundProduct);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error loading product:', error);
+          setIsLoading(false);
         });
-
-        // Combine products + materialProducts
-        const combinedProducts = [...productsData, ...materialProducts];
-
-        // Find product by id (id param is string, product.id is number)
-        const foundProduct = combinedProducts.find((p) => p.id === parseInt(id));
-
-        setProduct(foundProduct || null);
-      } catch (error) {
-        console.error('Error loading product or material:', error);
-        setProduct(null);
-      } finally {
-        setIsLoading(false);
-      }
     }
-
-    loadData();
   }, [id]);
 
   useEffect(() => {
@@ -169,9 +128,9 @@ export default function ProductDetail() {
       <main className="product-detail flex-grow">
         <div className="container mx-auto px-4">
           <div className="product-container grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="image-container relative w-full h-80 lg:h-96">
+            <div className="image-container">
               <Image
-                src={product.image || DEFAULT_IMAGE} // Use constant for default image
+                src={product.image || '/default-book.jpg'}
                 alt={product.name}
                 fill
                 className="object-cover"
@@ -183,27 +142,23 @@ export default function ProductDetail() {
               <Rating rating={product.rating} />
               <p>{product.description}</p>
               <div className="meta">
-                <p><strong>Author:</strong> {product.author || 'N/A'}</p>
+                <p><strong>Author:</strong> {product.author}</p>
                 <p><strong>Category:</strong> {product.category}</p>
               </div>
-              {product.features && product.features.length > 0 && (
-                <div className="features">
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">Features:</h3>
-                  <ul className="list-disc list-inside space-y-1 text-gray-600">
-                    {product.features.map((feature, index) => (
-                      <li key={index}>{feature}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <div className="flex items-center space-x-6 mt-4">
-                <span className="price text-xl font-bold">₹{product.price}</span>
+              <div className="features">
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">Features:</h3>
+                <ul className="list-disc list-inside space-y-1 text-gray-600">
+                  {product.features.map((feature, index) => (
+                    <li key={index}>{feature}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex items-center space-x-6">
+                <span className="price">₹{product.price}</span>
                 <button
                   onClick={() => setIsModalOpen(true)}
                   disabled={isBuying}
-                  className={`buy-button px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition ${
-                    isBuying ? 'opacity-75 cursor-not-allowed' : ''
-                  }`}
+                  className={`buy-button ${isBuying ? 'opacity-75 cursor-not-allowed' : ''}`}
                 >
                   {isBuying ? (
                     <span className="flex items-center">
@@ -249,7 +204,7 @@ export default function ProductDetail() {
                   name="customerName"
                   value={formData.customerName}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  className="mt-1 block w-full"
                   required
                 />
               </div>
@@ -263,7 +218,7 @@ export default function ProductDetail() {
                   name="customerEmail"
                   value={formData.customerEmail}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  className="mt-1 block w-full"
                   required
                 />
               </div>
@@ -277,11 +232,11 @@ export default function ProductDetail() {
                   name="customerPhone"
                   value={formData.customerPhone}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  className="mt-1 block w-full"
                   required
                 />
               </div>
-              <div className="flex justify-end space-x-2">
+             <div className="flex justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -291,12 +246,12 @@ export default function ProductDetail() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isBuying}
+                  disabled={isLoading}
                   className={`px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors ${
-                    isBuying ? 'opacity-75 cursor-not-allowed' : ''
+                    isLoading ? 'opacity-75 cursor-not-allowed' : ''
                   }`}
                 >
-                  {isBuying ? 'Processing...' : 'Proceed to Payment'}
+                  {isLoading ? 'Processing...' : 'Proceed to Payment'}
                 </button>
               </div>
             </form>
