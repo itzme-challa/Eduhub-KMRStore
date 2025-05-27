@@ -19,6 +19,9 @@ export default function ProductCard({ product }) {
     script.async = true;
     script.onload = () => console.log('Cashfree SDK loaded');
     document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script); // Cleanup on unmount
+    };
   }, []);
 
   const handleInputChange = (e) => {
@@ -85,34 +88,39 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <div className="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-105">
-      <Link href={`/products/${product.id}`}>
-        <div className="image-container relative w-full h-64">
-          <Image
-            src={product.image || '/default-book.jpg'}
-            alt={product.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        </div>
+    <div className="product-card bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      {/* Image Section */}
+      <Link href={`/products/${product.id}`} className="block relative w-full h-48 md:h-64">
+        <Image
+          src={product.image || '/default-book.jpg'}
+          alt={product.name}
+          fill
+          className="object-cover transition-transform duration-300 hover:scale-105"
+          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          priority={product.id <= 4} // Prioritize loading for first few cards
+          placeholder="blur"
+          blurDataURL="/placeholder.jpg" // Add a placeholder image for better UX
+        />
       </Link>
-      <div className="content p-6 flex flex-col">
+
+      {/* Content Section */}
+      <div className="p-4 md:p-6 flex flex-col space-y-3">
         <Link href={`/products/${product.id}`}>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2 hover:text-indigo-600 transition-colors">
+          <h2 className="text-lg md:text-xl font-semibold text-gray-900 hover:text-indigo-600 transition-colors line-clamp-1">
             {product.name}
           </h2>
         </Link>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
+        <p className="text-gray-600 text-sm md:text-base line-clamp-2">{product.description}</p>
         <Rating rating={product.rating} />
-        <div className="flex justify-between items-center mt-4">
-          <span className="text-2xl font-bold text-indigo-600">₹{product.price}</span>
+        <div className="flex justify-between items-center">
+          <span className="text-xl md:text-2xl font-bold text-indigo-600">₹{product.price}</span>
           <button
             onClick={() => setIsModalOpen(true)}
             disabled={isLoading}
-            className={`px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors ${
-              isLoading ? 'opacity-75 cursor-not-allowed' : ''
+            className={`px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors duration-200 ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
+            aria-label={`Buy ${product.name}`}
           >
             {isLoading ? (
               <span className="flex items-center">
@@ -140,9 +148,9 @@ export default function ProductCard({ product }) {
 
       {/* Modal for User Details */}
       {isModalOpen && (
-        <div className="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="modal-content bg-white rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-semibold mb-4">Enter Your Details</h2>
+        <div className="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="modal-content bg-white rounded-xl p-6 md:p-8 max-w-md w-full shadow-2xl">
+            <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-900">Enter Your Details</h2>
             <form onSubmit={handleBuyNow} className="space-y-4">
               <div>
                 <label htmlFor="customerName" className="block text-sm font-medium text-gray-700">
@@ -154,8 +162,9 @@ export default function ProductCard({ product }) {
                   name="customerName"
                   value={formData.customerName}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   required
+                  aria-required="true"
                 />
               </div>
               <div>
@@ -168,8 +177,9 @@ export default function ProductCard({ product }) {
                   name="customerEmail"
                   value={formData.customerEmail}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   required
+                  aria-required="true"
                 />
               </div>
               <div>
@@ -182,23 +192,24 @@ export default function ProductCard({ product }) {
                   name="customerPhone"
                   value={formData.customerPhone}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   required
+                  aria-required="true"
                 />
               </div>
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors"
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors ${
-                    isLoading ? 'opacity-75 cursor-not-allowed' : ''
+                  className={`px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors duration-200 ${
+                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
                   {isLoading ? 'Processing...' : 'Proceed to Payment'}
