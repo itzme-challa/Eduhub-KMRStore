@@ -1,3 +1,4 @@
+// pages/api/createOrder.js
 import axios from 'axios';
 
 export default async function handler(req, res) {
@@ -7,7 +8,7 @@ export default async function handler(req, res) {
 
   const { productId, productName, amount, telegramLink, customerName, customerEmail, customerPhone } = req.body;
 
-  if (!productId || !productName || !amount || !telegramLink || !customerName || !customerEmail || !customerPhone) {
+  if (!productId || !productName || !amount || !telegram surveyor, customerName, customerEmail, customerPhone) {
     return res.status(400).json({ success: false, error: 'Missing required fields' });
   }
 
@@ -48,7 +49,7 @@ export default async function handler(req, res) {
       success: true,
       paymentSessionId,
       orderId,
-      telegramLink, // Include for success page
+      telegramLink,
     });
   } catch (error) {
     console.error('Cashfree order creation failed:', error?.response?.data || error.message);
