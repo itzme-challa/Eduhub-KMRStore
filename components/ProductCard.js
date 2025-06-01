@@ -3,9 +3,12 @@ import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Rating from './Rating';
 
 export default function ProductCard({ product }) {
+  const router = useRouter();
+
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
@@ -13,6 +16,18 @@ export default function ProductCard({ product }) {
     script.onload = () => console.log('Cashfree SDK loaded');
     document.body.appendChild(script);
   }, []);
+
+  const handleBuyNow = () => {
+    router.push({
+      pathname: '/checkout',
+      query: {
+        productId: product.id,
+        productName: product.name,
+        amount: product.price,
+        telegramLink: product.telegramLink,
+      },
+    });
+  };
 
   return (
     <div className="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-105">
@@ -37,11 +52,12 @@ export default function ProductCard({ product }) {
         <Rating rating={product.rating} />
         <div className="flex justify-between items-center mt-4">
           <span className="text-2xl font-bold text-indigo-600">₹{product.price}</span>
-          <Link href={`/checkout/${product.id}`}>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-              Buy Now
-            </button>
-          </Link>
+          <button
+            onClick={handleBuyNow}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            Buy Now
+          </button>
         </div>
       </div>
     </div>
