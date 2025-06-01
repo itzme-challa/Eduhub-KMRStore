@@ -1,4 +1,3 @@
-// pages/api/createOrder.js
 import axios from 'axios';
 
 export default async function handler(req, res) {
@@ -49,7 +48,7 @@ export default async function handler(req, res) {
       success: true,
       paymentSessionId,
       orderId,
-      telegramLink,
+      telegramLink, // Include for success page
     });
   } catch (error) {
     console.error('Cashfree order creation failed:', error?.response?.data || error.message);
