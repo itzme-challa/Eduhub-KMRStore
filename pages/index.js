@@ -1,3 +1,4 @@
+// pages/index.js
 import { useEffect, useState } from 'react';
 import ProductCard from '../components/ProductCard';
 import Navbar from '../components/Navbar';
