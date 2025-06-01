@@ -1,20 +1,19 @@
-// pages/checkout.js
-import { useState, useEffect } from 'react';
+// components/Checkout.js
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import Link from 'next/link';
+import Navbar from './Navbar';
+import Footer from './Footer';
 
 export default function Checkout() {
   const router = useRouter();
   const { productId, productName, amount, telegramLink } = router.query;
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     customerName: '',
     customerEmail: '',
     customerPhone: '',
   });
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -45,7 +44,7 @@ export default function Checkout() {
     return true;
   };
 
-  const handleSubmit = async (e) => {
+  const handleProceedToPayment = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -89,19 +88,15 @@ export default function Checkout() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-grow checkout-page">
+      <main className="flex-grow">
         <div className="container mx-auto px-4 py-12">
           <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Checkout</h1>
           <div className="max-w-lg mx-auto bg-white rounded-xl shadow-lg p-8">
-            <h2 className="text-xl font-semibold text-gray-700 mb-6">Order Details</h2>
-            <div className="mb-6 space-y-2">
-              <p><strong>Product:</strong> {productName}</p>
-              <p><strong>Amount:</strong> ₹{amount}</p>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">Enter Your Details</h2>
+            <form onSubmit={handleProceedToPayment} className="space-y-6">
               <div>
                 <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
+                  Name
                 </label>
                 <input
                   type="text"
@@ -109,13 +104,14 @@ export default function Checkout() {
                   name="customerName"
                   value={formData.customerName}
                   onChange={handleInputChange}
-                  className="checkout-input"
+                  className="input-field"
+                  placeholder="John Doe"
                   required
                 />
               </div>
               <div>
                 <label htmlFor="customerEmail" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
+                  Email
                 </label>
                 <input
                   type="email"
@@ -123,13 +119,14 @@ export default function Checkout() {
                   name="customerEmail"
                   value={formData.customerEmail}
                   onChange={handleInputChange}
-                  className="checkout-input"
+                  className="input-field"
+                  placeholder="john@example.com"
                   required
                 />
               </div>
               <div>
                 <label htmlFor="customerPhone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number (10 digits)
+                  Phone (10 digits)
                 </label>
                 <input
                   type="tel"
@@ -137,18 +134,28 @@ export default function Checkout() {
                   name="customerPhone"
                   value={formData.customerPhone}
                   onChange={handleInputChange}
-                  className="checkout-input"
+                  className="input-field"
+                  placeholder="1234567890"
                   required
                 />
               </div>
-              <div className="flex justify-between items-center mt-8">
-                <Link href={`/products/${productId}`} className="text-indigo-600 hover:text-indigo-800 font-medium">
-                  Back to Product
-                </Link>
+              <div className="order-summary bg-gray-100 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Order Summary</h3>
+                <p className="text-gray-600"><strong>Product:</strong> {productName}</p>
+                <p className="text-gray-600"><strong>Amount:</strong> ₹{amount}</p>
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`checkout-button ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  className={`proceed-button ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
                 >
                   {isLoading ? (
                     <span className="flex items-center">
@@ -158,12 +165,12 @@ export default function Checkout() {
                         fill="none"
                         viewBox="0 0 24 24"
                       >
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path
                           className="opacity-75"
                           fill="currentColor"
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
+                        ></path>
                       </svg>
                       Processing...
                     </span>
