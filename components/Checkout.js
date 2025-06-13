@@ -17,6 +17,7 @@ export default function Checkout() {
   });
   const [user, setUser] = useState(null);
   const [sdkLoaded, setSdkLoaded] = useState(false);
+  const [sdkError, setSdkError] = useState(null);
 
   useEffect(() => {
     console.log('Checkout useEffect: Checking authentication');
@@ -47,8 +48,8 @@ export default function Checkout() {
   }, [router]);
 
   useEffect(() => {
-    console.log('Button state - isLoading:', isLoading, 'user:', !!user, 'sdkLoaded:', sdkLoaded, 'user.uid:', user?.uid);
-  }, [isLoading, user, sdkLoaded]);
+    console.log('Button state - isLoading:', isLoading, 'user:', !!user, 'sdkLoaded:', sdkLoaded, 'user.uid:', user?.uid, 'sdkError:', sdkError);
+  }, [isLoading, user, sdkLoaded, sdkError]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -80,7 +81,7 @@ export default function Checkout() {
     }
 
     if (!sdkLoaded) {
-      toast.error('Payment SDK not loaded. Please try again.');
+      toast.error('Payment SDK not loaded. Please try again or refresh the page.');
       return;
     }
 
@@ -146,6 +147,27 @@ export default function Checkout() {
     }
   };
 
+  const handleRetrySdkLoad = () => {
+    console.log('Retrying SDK load');
+    setSdkError(null);
+    setSdkLoaded(false);
+    // Force reload by appending a cache-busting query param
+    const script = document.createElement('script');
+    script.src = `https://sdk.cashfree.com/js/v3/cashfree.js?ts=${Date.now()}`;
+    script.async = true;
+    script.onload = () => {
+      console.log('Cashfree SDK retry loaded successfully');
+      setSdkLoaded(true);
+      setSdkError(null);
+    };
+    script.onerror = (e) => {
+      console.error('Cashfree SDK retry failed:', e);
+      setSdkError('Failed to load payment SDK on retry.');
+      toast.error('Failed to load payment SDK on retry. Please refresh the page.');
+    };
+    document.body.appendChild(script);
+  };
+
   if (!courseId || !courseName || !amount) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -164,15 +186,16 @@ export default function Checkout() {
     <div className="flex flex-col min-h-screen">
       <Script 
         src="https://sdk.cashfree.com/js/v3/cashfree.js" 
-        strategy="beforeInteractive" 
+        strategy="afterInteractive" // Changed from beforeInteractive
         onLoad={() => {
           console.log('Cashfree SDK loaded successfully');
           setSdkLoaded(true);
+          setSdkError(null);
         }}
         onError={(e) => {
           console.error('Failed to load Cashfree SDK:', e);
-          toast.error('Failed to load payment SDK. Please refresh the page.');
-          setSdkLoaded(false);
+          setSdkError('Failed to load payment SDK.');
+          toast.error('Failed to load payment SDK. Please try again or refresh the page.');
         }}
       />
       <Navbar />
@@ -181,6 +204,17 @@ export default function Checkout() {
           <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Checkout</h1>
           <div className="max-w-lg mx-auto bg-white rounded-xl shadow-lg p-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-6">Enter Your Details</h2>
+            {sdkError && (
+              <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+                <p>{sdkError}</p>
+                <button
+                  onClick={handleRetrySdkLoad}
+                  className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                >
+                  Retry Loading Payment SDK
+                </button>
+              </div>
+            )}
             <form onSubmit={handleProceedToPayment} className="space-y-6">
               <div>
                 <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
