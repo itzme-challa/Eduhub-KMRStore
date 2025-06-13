@@ -1,91 +1,132 @@
 [
   {
     "id": 1,
-    "name": "Introduction to Python Programming",
-    "description": "Learn the fundamentals of Python programming, including data structures, file I/O, and object-oriented programming.",
+    "name": "Complete Python Developer Bootcamp",
+    "description": "Master Python from beginner to advanced levels with hands-on projects and real-world applications.",
     "instructor": "Dr. John Smith",
     "category": "Programming",
-    "duration": "6 weeks",
+    "duration": "8 weeks",
     "price": 1,
-    "rating": 4.8,
-    "image": "/courses/python.jpg",
+    "rating": 4.9,
+    "level": "Beginner to Intermediate",
+    "image": "/courses/python-bootcamp.jpg",
     "features": [
-      "Master Python syntax and semantics",
-      "Build real-world projects",
-      "Understand data structures",
-      "Learn debugging techniques"
+      "Master Python syntax and advanced concepts",
+      "Build 5+ real-world projects",
+      "Learn data analysis with pandas",
+      "Understand web development with Flask"
     ],
     "content": {
-      "pdfs": [
-        { "title": "Python Basics Guide", "url": "https://example.com/python-basics.pdf" },
-        { "title": "Python Project Workbook", "url": "https://example.com/python-workbook.pdf" }
-      ],
-      "videos": [
-        { "title": "Introduction to Python", "url": "https://example.com/videos/python-intro.mp4" },
-        { "title": "Python Data Structures", "url": "https://example.com/videos/python-data-structures.mp4" }
-      ],
-      "audio": [
-        { "title": "Python Tips Podcast", "url": "https://example.com/audio/python-tips.mp3" }
+      "modules": [
+        {
+          "title": "Module 1: Python Fundamentals",
+          "items": [
+            { "id": "p1-m1-1", "title": "Introduction to Python", "type": "video", "url": "https://example.com/videos/python-intro.mp4" },
+            { "id": "p1-m1-2", "title": "Python Basics Guide", "type": "pdf", "url": "https://example.com/pdfs/python-basics.pdf" }
+          ]
+        },
+        {
+          "title": "Module 2: Data Structures & Algorithms",
+          "items": [
+            { "id": "p1-m2-1", "title": "Data Structures", "type": "video", "url": "https://example.com/videos/data-structures.mp4" },
+            { "id": "p1-m2-2", "title": "Algorithms Guide", "type": "pdf", "url": "https://example.com/pdfs/algorithms.pdf" },
+            { "id": "p1-m2-3", "title": "Coding Exercises", "type": "pdf", "url": "https://example.com/pdfs/coding-exercises.pdf" }
+          ]
+        },
+        {
+          "title": "Module 3: Web Development",
+          "items": [
+            { "id": "p1-m3-1", "title": "Flask Web Development", "type": "video", "url": "https://example.com/videos/flask-intro.mp4" },
+            { "id": "p1-m3-2", "title": "Project Walkthrough", "type": "audio", "url": "https://example.com/audio/project-walkthrough.mp3" }
+          ]
+        }
       ]
     }
   },
   {
     "id": 2,
-    "name": "Digital Marketing Mastery",
-    "description": "Master digital marketing strategies including SEO, social media marketing, and content creation.",
+    "name": "Digital Marketing Pro",
+    "description": "Become a digital marketing expert with advanced strategies in SEO, social media, and content marketing.",
     "instructor": "Sarah Johnson",
     "category": "Marketing",
-    "duration": "8 weeks",
-    "price": 2499,
-    "rating": 4.6,
+    "duration": "10 weeks",
+    "price": 2999,
+    "rating": 4.7,
+    "level": "Intermediate",
     "image": "/courses/digital-marketing.jpg",
     "features": [
-      "Learn SEO optimization techniques",
-      "Master social media advertising",
-      "Create engaging content",
-      "Analyze marketing metrics"
+      "Advanced SEO techniques",
+      "Social media campaign strategies",
+      "Content marketing mastery",
+      "Analytics and reporting skills"
     ],
     "content": {
-      "pdfs": [
-        { "title": "SEO Guide", "url": "https://example.com/seo-guide.pdf" },
-        { "title": "Social Media Strategy", "url": "https://example.com/social-media-strategy.pdf" }
-      ],
-      "videos": [
-        { "title": "SEO Fundamentals", "url": "https://example.com/videos/seo-fundamentals.mp4" },
-        { "title": "Content Marketing", "url": "https://example.com/videos/content-marketing.mp4" }
-      ],
-      "audio": [
-        { "title": "Marketing Trends Podcast", "url": "https://example.com/audio/marketing-trends.mp3" }
+      "modules": [
+        {
+          "title": "Module 1: SEO Foundations",
+          "items": [
+            { "id": "p2-m1-1", "title": "SEO Basics", "type": "video", "url": "https://example.com/videos/seo-basics.mp4" },
+            { "id": "p2-m1-2", "title": "SEO Guide", "type": "pdf", "url": "https://example.com/pdfs/seo-guide.pdf" }
+          ]
+        },
+        {
+          "title": "Module 2: Social Media Marketing",
+          "items": [
+            { "id": "p2-m2-1", "title": "Social Media Strategies", "type": "video", "url": "https://example.com/videos/social-media.mp4" },
+            { "id": "p2-m2-2", "title": "Campaign Planning", "type": "pdf", "url": "https://example.com/pdfs/campaign-planning.pdf" }
+          ]
+        },
+        {
+          "title": "Module 3: Analytics",
+          "items": [
+            { "id": "p2-m3-1", "title": "Google Analytics", "type": "video", "url": "https://example.com/videos/google-analytics.mp4" },
+            { "id": "p2-m3-2", "title": "Analytics Podcast", "type": "audio", "url": "https://example.com/audio/analytics-podcast.mp3" }
+          ]
+        }
       ]
     }
   },
   {
     "id": 3,
-    "name": "Data Science with R",
-    "description": "Dive into data science with R, covering data visualization, statistical analysis, and machine learning.",
+    "name": "Data Science with R and Python",
+    "description": "Learn data science using R and Python, covering visualization, statistical analysis, and machine learning.",
     "instructor": "Prof. Emily Chen",
     "category": "Data Science",
-    "duration": "10 weeks",
-    "price": 2999,
-    "rating": 4.9,
+    "duration": "12 weeks",
+    "price": 3499,
+    "rating": 4.8,
+    "level": "Intermediate to Advanced",
     "image": "/courses/data-science.jpg",
     "features": [
-      "Create stunning data visualizations",
-      "Perform statistical analysis",
-      "Build machine learning models",
-      "Work with real datasets"
+      "Advanced data visualization",
+      "Statistical modeling",
+      "Machine learning algorithms",
+      "Big data handling"
     ],
     "content": {
-      "pdfs": [
-        { "title": "R Programming Guide", "url": "https://example.com/r-guide.pdf" },
-        { "title": "Data Analysis Workbook", "url": "https://example.com/data-analysis-workbook.pdf" }
-      ],
-      "videos": [
-        { "title": "R Basics", "url": "https://example.com/videos/r-basics.mp4" },
-        { "title": "Machine Learning with R", "url": "https://example.com/videos/ml-r.mp4" }
-      ],
-      "audio": [
-        { "title": "Data Science Insights", "url": "https://example.com/audio/data-science-insights.mp3" }
+      "modules": [
+        {
+          "title": "Module 1: Data Science Basics",
+          "items": [
+            { "id": "p3-m1-1", "title": "Intro to Data Science", "type": "video", "url": "https://example.com/videos/data-science-intro.mp4" },
+            { "id": "p3-m1-2", "title": "R and Python Guide", "type": "pdf", "url": "https://example.com/pdfs/r-python-guide.pdf" }
+          ]
+        },
+        {
+          "title": "Module 2: Machine Learning",
+          "items": [
+            { "id": "p3-m2-1", "title": "ML with R", "type": "video", "url": "https://example.com/videos/ml-r.mp4" },
+            { "id": "p3-m2-2", "title": "ML with Python", "type": "video", "url": "https://example.com/videos/ml-python.mp4" },
+            { "id": "p3-m2-3", "title": "ML Exercises", "type": "pdf", "url": "https://example.com/pdfs/ml-exercises.pdf" }
+          ]
+        },
+        {
+          "title": "Module 3: Advanced Topics",
+          "items": [
+            { "id": "p3-m3-1", "title": "Big Data Concepts", "type": "video", "url": "https://example.com/videos/big-data.mp4" },
+            { "id": "p3-m3-2", "title": "Data Science Podcast", "type": "audio", "url": "https://example.com/audio/data-science-podcast.mp3" }
+          ]
+        }
       ]
     }
   }
