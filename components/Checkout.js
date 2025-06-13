@@ -19,20 +19,30 @@ export default function Checkout() {
   const [sdkLoaded, setSdkLoaded] = useState(false);
 
   useEffect(() => {
+    console.log('Checkout useEffect: Checking authentication');
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (!currentUser) {
+        console.log('No authenticated user found, redirecting to /profile');
         toast.error('Please log in to proceed with the purchase.');
         router.push('/profile');
       } else {
+        console.log('Authenticated user found:', currentUser.uid);
         setUser(currentUser);
         setFormData((prev) => ({
           ...prev,
           customerEmail: currentUser.email || prev.customerEmail,
         }));
       }
+    }, (error) => {
+      console.error('Auth state change error:', error);
+      toast.error('Authentication error. Please try again.');
     });
     return () => unsubscribe();
   }, [router]);
+
+  useEffect(() => {
+    console.log('Button state - isLoading:', isLoading, 'user:', !!user, 'sdkLoaded:', sdkLoaded);
+  }, [isLoading, user, sdkLoaded]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -57,6 +67,7 @@ export default function Checkout() {
 
   const handleProceedToPayment = async (e) => {
     e.preventDefault();
+    console.log('Form submitted, validating...');
     if (!validateForm() || !user) {
       toast.error('Unable to proceed. Please ensure you are logged in and all fields are valid.');
       return;
@@ -120,11 +131,11 @@ export default function Checkout() {
         redirectTarget: '_self',
       });
 
-      // Only reset form after successful checkout initiation
       setFormData({ customerName: '', customerEmail: '', customerPhone: '' });
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error(`Checkout failed: ${error.message}`);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -149,12 +160,12 @@ export default function Checkout() {
         src="https://sdk.cashfree.com/js/v3/cashfree.js" 
         strategy="beforeInteractive" 
         onLoad={() => {
-          console.log('Cashfree SDK loaded');
+          console.log('Cashfree SDK loaded successfully');
           setSdkLoaded(true);
         }}
-        onError={() => {
-          console.error('Failed to load Cashfree SDK');
-          toast.error('Failed to load payment SDK. Please try again.');
+        onError={(e) => {
+          console.error('Failed to load Cashfree SDK:', e);
+          toast.error('Failed to load payment SDK. Please refresh the page.');
           setSdkLoaded(false);
         }}
       />
