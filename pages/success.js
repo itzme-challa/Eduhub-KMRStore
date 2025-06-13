@@ -10,7 +10,6 @@ export default function Success() {
 
   useEffect(() => {
     if (course_id) {
-      // Save purchased course
       const purchasedCourses = JSON.parse(localStorage.getItem('purchasedCourses') || '[]');
       if (!purchasedCourses.includes(parseInt(course_id))) {
         purchasedCourses.push(parseInt(course_id));
@@ -19,7 +18,7 @@ export default function Success() {
       setIsLoading(false);
       setTimeout(() => {
         router.push(`/courses/${course_id}`);
-      }, 3000); // Redirect to course page after 3 seconds
+      }, 3000);
     }
   }, [course_id, router]);
 
@@ -37,7 +36,7 @@ export default function Success() {
               <>
                 <h1 className="text-3xl font-bold text-center mb-4">Purchase Successful!</h1>
                 <p className="text-center text-gray-600 mb-6">
-                  Thank you for your purchase. You will be redirected to your course in 3 seconds.
+                  Congratulations! You can now access your course. Redirecting in 3 seconds...
                 </p>
                 <p className="text-center">
                   <a href={`/courses/${course_id}`} className="text-indigo-600 hover:text-indigo-800 transition-colors">
