@@ -16,6 +16,7 @@ export default function Checkout() {
     customerPhone: '',
   });
   const [user, setUser] = useState(null);
+  const [sdkLoaded, setSdkLoaded] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -56,10 +57,29 @@ export default function Checkout() {
 
   const handleProceedToPayment = async (e) => {
     e.preventDefault();
-    if (!validateForm() || !user) return;
+    if (!validateForm() || !user) {
+      toast.error('Unable to proceed. Please ensure you are logged in and all fields are valid.');
+      return;
+    }
+
+    if (!sdkLoaded) {
+      toast.error('Payment SDK not loaded. Please try again.');
+      return;
+    }
 
     setIsLoading(true);
+
     try {
+      console.log('Sending request to /api/createOrder with body:', {
+        courseId,
+        courseName,
+        amount: parseFloat(amount),
+        customerName: formData.customerName,
+        customerEmail: formData.customerEmail,
+        customerPhone: formData.customerPhone,
+        userId: user.uid,
+      });
+
       const response = await fetch('/api/createOrder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -75,24 +95,36 @@ export default function Checkout() {
       });
 
       const data = await response.json();
+      console.log('Response from /api/createOrder:', data);
+
       if (!response.ok || !data.success) {
         throw new Error(data.error || 'Failed to create payment order');
       }
+
       const paymentSessionId = data.paymentSessionId;
-      if (!window?.Cashfree || !paymentSessionId) {
-        throw new Error('Cashfree SDK not loaded or session missing');
+      if (!paymentSessionId) {
+        throw new Error('Payment session ID not received');
       }
+
+      if (!window?.Cashfree) {
+        throw new Error('Cashfree SDK not available');
+      }
+
       const cashfree = new window.Cashfree({ 
         mode: process.env.NEXT_PUBLIC_CASHFREE_MODE || 'SANDBOX' 
       });
+      console.log('Initializing Cashfree checkout with session ID:', paymentSessionId);
+
       cashfree.checkout({
         paymentSessionId,
         redirectTarget: '_self',
       });
+
+      // Only reset form after successful checkout initiation
       setFormData({ customerName: '', customerEmail: '', customerPhone: '' });
     } catch (error) {
-      toast.error(error.message);
-    } finally {
+      console.error('Checkout error:', error);
+      toast.error(`Checkout failed: ${error.message}`);
       setIsLoading(false);
     }
   };
@@ -113,7 +145,19 @@ export default function Checkout() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="beforeInteractive" />
+      <Script 
+        src="https://sdk.cashfree.com/js/v3/cashfree.js" 
+        strategy="beforeInteractive" 
+        onLoad={() => {
+          console.log('Cashfree SDK loaded');
+          setSdkLoaded(true);
+        }}
+        onError={() => {
+          console.error('Failed to load Cashfree SDK');
+          toast.error('Failed to load payment SDK. Please try again.');
+          setSdkLoaded(false);
+        }}
+      />
       <Navbar />
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-12">
@@ -181,8 +225,8 @@ export default function Checkout() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isLoading || !user}
-                  className={`proceed-button ${isLoading || !user ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  disabled={isLoading || !user || !sdkLoaded}
+                  className={`proceed-button ${isLoading || !user || !sdkLoaded ? 'opacity-75 cursor-not-allowed' : ''}`}
                 >
                   {isLoading ? (
                     <span className="flex items-center">
