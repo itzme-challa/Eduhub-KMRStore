@@ -13,9 +13,17 @@ export default async function handler(req, res) {
 
   try {
     const orderId = `ORDER_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    const cashfreeUrl = process.env.NEXT_PUBLIC_CASHFREE_MODE === 'PROD'
+    const cashfreeMode = process.env.NEXT_PUBLIC_CASHFREE_MODE || 'PROD';
+    const cashfreeUrl = cashfreeMode === 'PROD'
       ? 'https://api.cashfree.com/pg/orders'
       : 'https://sandbox.cashfree.com/pg/orders';
+
+    console.log('Creating Cashfree order with:', {
+      url: cashfreeUrl,
+      mode: cashfreeMode,
+      clientId: process.env.CASHFREE_CLIENT_ID ? '[SET]' : '[UNSET]',
+      clientSecret: process.env.CASHFREE_CLIENT_SECRET ? '[SET]' : '[UNSET]',
+    });
 
     const cashfreeResponse = await fetch(cashfreeUrl, {
       method: 'POST',
@@ -51,7 +59,8 @@ export default async function handler(req, res) {
         data: cashfreeData,
         clientId: process.env.CASHFREE_CLIENT_ID ? '[SET]' : '[UNSET]',
         clientSecret: process.env.CASHFREE_CLIENT_SECRET ? '[SET]' : '[UNSET]',
-        mode: process.env.NEXT_PUBLIC_CASHFREE_MODE,
+        mode: cashfreeMode,
+        url: cashfreeUrl,
       });
       return res.status(cashfreeResponse.status || 500).json({
         success: false,
@@ -79,6 +88,7 @@ export default async function handler(req, res) {
       stack: error.stack,
       clientId: process.env.CASHFREE_CLIENT_ID ? '[SET]' : '[UNSET]',
       clientSecret: process.env.CASHFREE_CLIENT_SECRET ? '[SET]' : '[UNSET]',
+      mode: cashfreeMode,
     });
     return res.status(500).json({ success: false, error: 'Internal server error' });
   }
