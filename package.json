@@ -1,5 +1,5 @@
 {
-  "name": "e-learning-platform",
+  "name": "eduhub",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -9,19 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "axios": "^1.6.7",
-    "firebase": "^10.7.0",
-    "next": "^ wystarczająco nowy, aby obsługiwać Next.js 14",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-toastify": "^9.1.3",
-    "react-icons": "^5.0.0",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.5"
+    "firebase": "^10.13.2",
+    "next": "14.2.15",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-toastify": "^9.1.3"
   },
   "devDependencies": {
-    "eslint": "^8.56.0",
-    "eslint-config-next": "14.1.0"
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.15",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13"
   }
 }
