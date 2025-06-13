@@ -128,10 +128,16 @@ export default function Checkout() {
         throw new Error('Cashfree SDK not available');
       }
 
+      const cashfreeMode = process.env.NEXT_PUBLIC_CASHFREE_MODE || 'PROD';
+      if (!['PROD', 'SANDBOX'].includes(cashfreeMode)) {
+        console.error('Invalid Cashfree mode:', cashfreeMode);
+        throw new Error('Payment configuration error: Invalid mode');
+      }
+
       const cashfree = new window.Cashfree({ 
-        mode: process.env.NEXT_PUBLIC_CASHFREE_MODE || 'PROD' 
+        mode: cashfreeMode
       });
-      console.log('Initializing Cashfree checkout with session ID:', paymentSessionId);
+      console.log('Initializing Cashfree checkout with session ID:', paymentSessionId, 'mode:', cashfreeMode);
 
       try {
         const checkoutResult = await cashfree.checkout({
@@ -149,6 +155,8 @@ export default function Checkout() {
       toast.error(`Checkout failed: ${error.message}`);
       if (error.message.includes('authentication')) {
         toast.error('Please check your payment provider credentials and try again.');
+      } else if (error.message.includes('Invalid mode')) {
+        toast.error('Payment system misconfigured. Please contact support.');
       }
     } finally {
       setIsLoading(false);
