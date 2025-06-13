@@ -8,7 +8,6 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function Home() {
   const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [purchasedCourses, setPurchasedCourses] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -23,9 +22,6 @@ export default function Home() {
         console.error('Error loading courses:', error);
         setIsLoading(false);
       });
-
-    const savedPurchases = JSON.parse(localStorage.getItem('purchasedCourses') || '[]');
-    setPurchasedCourses(savedPurchases);
   }, []);
 
   const categories = ['All', ...new Set(courses.map(course => course.category))];
@@ -76,11 +72,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">Our Courses</h2>
               <div className="course-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredCourses.map((course) => (
-                  <CourseCard 
-                    key={course.id} 
-                    course={course} 
-                    isPurchased={purchasedCourses.includes(course.id)}
-                  />
+                  <CourseCard key={course.id} course={course} />
                 ))}
               </div>
             </>
