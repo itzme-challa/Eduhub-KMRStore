@@ -133,12 +133,17 @@ export default function Checkout() {
       });
       console.log('Initializing Cashfree checkout with session ID:', paymentSessionId);
 
-      cashfree.checkout({
-        paymentSessionId,
-        redirectTarget: '_self',
-      });
-
-      setFormData({ customerName: '', customerEmail: '', customerPhone: '' });
+      try {
+        await cashfree.checkout({
+          paymentSessionId,
+          redirectTarget: '_self', // Try '_top' or '_blank' if '_self' fails
+        });
+        console.log('Cashfree checkout initiated successfully');
+        setFormData({ customerName: '', customerEmail: '', customerPhone: '' });
+      } catch (checkoutError) {
+        console.error('Cashfree checkout error:', checkoutError);
+        throw new Error(`Payment initiation failed: ${checkoutError.message || 'Unknown error'}`);
+      }
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error(`Checkout failed: ${error.message}`);
@@ -151,7 +156,6 @@ export default function Checkout() {
     console.log('Retrying SDK load');
     setSdkError(null);
     setSdkLoaded(false);
-    // Force reload by appending a cache-busting query param
     const script = document.createElement('script');
     script.src = `https://sdk.cashfree.com/js/v3/cashfree.js?ts=${Date.now()}`;
     script.async = true;
@@ -186,7 +190,7 @@ export default function Checkout() {
     <div className="flex flex-col min-h-screen">
       <Script 
         src="https://sdk.cashfree.com/js/v3/cashfree.js" 
-        strategy="afterInteractive" // Changed from beforeInteractive
+        strategy="afterInteractive"
         onLoad={() => {
           console.log('Cashfree SDK loaded successfully');
           setSdkLoaded(true);
