@@ -1,13 +1,14 @@
 import axios from 'axios';
+import { getDatabase, ref, set } from '../../firebase';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
   }
 
-  const { courseId, courseName, amount, customerName, customerEmail, customerPhone } = req.body;
+  const { courseId, courseName, amount, customerName, customerEmail, customerPhone, userId } = req.body;
 
-  if (!courseId || !courseName || !amount || !customerName || !customerEmail || !customerPhone) {
+  if (!courseId || !courseName || !amount || !customerName || !customerEmail || !customerPhone || !userId) {
     return res.status(400).json({ success: false, error: 'Missing required fields' });
   }
 
@@ -21,7 +22,7 @@ export default async function handler(req, res) {
         order_amount: amount,
         order_currency: 'INR',
         customer_details: {
-          customer_id: 'cust_' + courseId,
+          customer_id: `cust_${userId}`,
           customer_name: customerName,
           customer_email: customerEmail,
           customer_phone: customerPhone,
