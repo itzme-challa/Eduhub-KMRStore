@@ -1,26 +1,31 @@
-// pages/index.js
 import { useEffect, useState } from 'react';
-import ProductCard from '../components/ProductCard';
+import CourseCard from '../components/CourseCard';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [purchasedCourses, setPurchasedCourses] = useState([]);
 
   useEffect(() => {
-    fetch('/products.json')
+    // Load courses
+    fetch('/courses.json')
       .then((res) => res.json())
       .then((data) => {
-        setProducts(data);
+        setCourses(data);
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error('Error loading products:', error);
+        console.error('Error loading courses:', error);
         setIsLoading(false);
       });
+
+    // Load purchased courses from localStorage or API
+    const savedPurchases = JSON.parse(localStorage.getItem('purchasedCourses') || '[]');
+    setPurchasedCourses(savedPurchases);
   }, []);
 
   return (
@@ -30,9 +35,9 @@ export default function Home() {
       <main className="flex-grow">
         <div className="hero bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Discover Your Next Favorite Book</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Discover Your Next Learning Adventure</h1>
             <p className="text-lg md:text-xl max-w-2xl mx-auto">
-              Explore our curated collection of premium study materials and books to excel in your learning journey.
+              Explore our curated collection of premium online courses to excel in your learning journey.
             </p>
           </div>
         </div>
@@ -43,10 +48,14 @@ export default function Home() {
             </div>
           ) : (
             <>
-              <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">Our Collection</h2>
-              <div className="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+              <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">Our Courses</h2>
+              <div className="course-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {courses.map((course) => (
+                  <CourseCard 
+                    key={course.id} 
+                    course={course} 
+                    isPurchased={purchasedCourses.includes(course.id)}
+                  />
                 ))}
               </div>
             </>
