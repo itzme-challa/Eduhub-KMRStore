@@ -5,9 +5,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
   }
 
-  const { productId, productName, amount, telegramLink, customerName, customerEmail, customerPhone } = req.body;
+  const { courseId, courseName, amount, customerName, customerEmail, customerPhone } = req.body;
 
-  if (!productId || !productName || !amount || !telegramLink || !customerName || !customerEmail || !customerPhone) {
+  if (!courseId || !courseName || !amount || !customerName || !customerEmail || !customerPhone) {
     return res.status(400).json({ success: false, error: 'Missing required fields' });
   }
 
@@ -21,16 +21,16 @@ export default async function handler(req, res) {
         order_amount: amount,
         order_currency: 'INR',
         customer_details: {
-          customer_id: 'cust_' + productId,
+          customer_id: 'cust_' + courseId,
           customer_name: customerName,
           customer_email: customerEmail,
           customer_phone: customerPhone,
         },
         order_meta: {
-          return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?order_id={order_id}&product_id=${productId}`,
+          return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?order_id={order_id}&course_id=${courseId}`,
           notify_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook`, // Optional
         },
-        order_note: telegramLink,
+        order_note: `Course: ${courseName}`,
       },
       {
         headers: {
@@ -48,7 +48,6 @@ export default async function handler(req, res) {
       success: true,
       paymentSessionId,
       orderId,
-      telegramLink, // Include for success page
     });
   } catch (error) {
     console.error('Cashfree order creation failed:', error?.response?.data || error.message);
