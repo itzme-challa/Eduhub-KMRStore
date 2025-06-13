@@ -6,7 +6,7 @@
     "instructor": "Dr. John Smith",
     "category": "Programming",
     "duration": "6 weeks",
-    "price": 1999,
+    "price": 1,
     "rating": 4.8,
     "image": "/courses/python.jpg",
     "features": [
