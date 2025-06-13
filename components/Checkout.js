@@ -129,14 +129,14 @@ export default function Checkout() {
       }
 
       const cashfree = new window.Cashfree({ 
-        mode: process.env.NEXT_PUBLIC_CASHFREE_MODE || 'SANDBOX' 
+        mode: process.env.NEXT_PUBLIC_CASHFREE_MODE || 'PROD' 
       });
       console.log('Initializing Cashfree checkout with session ID:', paymentSessionId);
 
       try {
         const checkoutResult = await cashfree.checkout({
           paymentSessionId,
-          redirectTarget: '_top', // Changed to '_top' to avoid iframe issues
+          redirectTarget: '_top',
         });
         console.log('Cashfree checkout initiated successfully, result:', checkoutResult);
         setFormData({ customerName: '', customerEmail: '', customerPhone: '' });
@@ -147,6 +147,9 @@ export default function Checkout() {
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error(`Checkout failed: ${error.message}`);
+      if (error.message.includes('authentication')) {
+        toast.error('Please check your payment provider credentials and try again.');
+      }
     } finally {
       setIsLoading(false);
     }
