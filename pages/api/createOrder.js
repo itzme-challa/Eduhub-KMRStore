@@ -23,6 +23,7 @@ export default async function handler(req, res) {
       mode: cashfreeMode,
       clientId: process.env.CASHFREE_CLIENT_ID ? '[SET]' : '[UNSET]',
       clientSecret: process.env.CASHFREE_CLIENT_SECRET ? '[SET]' : '[UNSET]',
+      returnUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/success?order_id=${orderId}`,
     });
 
     const cashfreeResponse = await fetch(cashfreeUrl, {
@@ -44,7 +45,7 @@ export default async function handler(req, res) {
           customer_phone: customerPhone,
         },
         order_meta: {
-          return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?order_id={order_id}&order_token={order_token}`,
+          return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?order_id=${orderId}`,
           notify_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook`,
         },
       }),
@@ -64,7 +65,7 @@ export default async function handler(req, res) {
       });
       return res.status(cashfreeResponse.status || 500).json({
         success: false,
-        error: cashfreeData.message || 'authentication Failed',
+        error: cashfreeData.message || 'Failed to create order',
       });
     }
 
