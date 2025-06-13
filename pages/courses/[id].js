@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
-import { auth, get, ref, child } from '../../firebase';
+import { auth, getDatabase, get, ref, child } from '../../firebase';
 import Rating from '../../components/Rating';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
