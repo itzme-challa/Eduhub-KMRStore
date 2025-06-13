@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Introduction to Python Programming",
+    "description": "Learn the fundamentals of Python programming, including data structures, file I/O, and object-oriented programming.",
+    "instructor": "Dr. John Smith",
+    "category": "Programming",
+    "duration": "6 weeks",
+    "price": 1999,
+    "rating": 4.8,
+    "image": "/courses/python.jpg",
+    "features": [
+      "Master Python syntax and semantics",
+      "Build real-world projects",
+      "Understand data structures",
+      "Learn debugging techniques"
+    ],
+    "content": {
+      "pdfs": [
+        { "title": "Python Basics Guide", "url": "https://example.com/python-basics.pdf" },
+        { "title": "Python Project Workbook", "url": "https://example.com/python-workbook.pdf" }
+      ],
+      "videos": [
+        { "title": "Introduction to Python", "url": "https://example.com/videos/python-intro.mp4" },
+        { "title": "Python Data Structures", "url": "https://example.com/videos/python-data-structures.mp4" }
+      ],
+      "audio": [
+        { "title": "Python Tips Podcast", "url": "https://example.com/audio/python-tips.mp3" }
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "name": "Digital Marketing Mastery",
+    "description": "Master digital marketing strategies including SEO, social media marketing, and content creation.",
+    "instructor": "Sarah Johnson",
+    "category": "Marketing",
+    "duration": "8 weeks",
+    "price": 2499,
+    "rating": 4.6,
+    "image": "/courses/digital-marketing.jpg",
+    "features": [
+      "Learn SEO optimization techniques",
+      "Master social media advertising",
+      "Create engaging content",
+      "Analyze marketing metrics"
+    ],
+    "content": {
+      "pdfs": [
+        { "title": "SEO Guide", "url": "https://example.com/seo-guide.pdf" },
+        { "title": "Social Media Strategy", "url": "https://example.com/social-media-strategy.pdf" }
+      ],
+      "videos": [
+        { "title": "SEO Fundamentals", "url": "https://example.com/videos/seo-fundamentals.mp4" },
+        { "title": "Content Marketing", "url": "https://example.com/videos/content-marketing.mp4" }
+      ],
+      "audio": [
+        { "title": "Marketing Trends Podcast", "url": "https://example.com/audio/marketing-trends.mp3" }
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "name": "Data Science with R",
+    "description": "Dive into data science with R, covering data visualization, statistical analysis, and machine learning.",
+    "instructor": "Prof. Emily Chen",
+    "category": "Data Science",
+    "duration": "10 weeks",
+    "price": 2999,
+    "rating": 4.9,
+    "image": "/courses/data-science.jpg",
+    "features": [
+      "Create stunning data visualizations",
+      "Perform statistical analysis",
+      "Build machine learning models",
+      "Work with real datasets"
+    ],
+    "content": {
+      "pdfs": [
+        { "title": "R Programming Guide", "url": "https://example.com/r-guide.pdf" },
+        { "title": "Data Analysis Workbook", "url": "https://example.com/data-analysis-workbook.pdf" }
+      ],
+      "videos": [
+        { "title": "R Basics", "url": "https://example.com/videos/r-basics.mp4" },
+        { "title": "Machine Learning with R", "url": "https://example.com/videos/ml-r.mp4" }
+      ],
+      "audio": [
+        { "title": "Data Science Insights", "url": "https://example.com/audio/data-science-insights.mp3" }
+      ]
+    }
+  }
+]
