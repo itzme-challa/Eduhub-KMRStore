@@ -24,14 +24,15 @@ export default function Checkout() {
     const unsubscribe = auth.onAuthStateChanged(
       (currentUser) => {
         if (!currentUser) {
-          console.log('No authenticated user found, redirecting to /profile');
+          console.log('No authenticated user, redirecting to /login');
           toast.error('Please log in to proceed with the purchase.');
-          router.push('/profile');
+          router.push('/login');
         } else {
           console.log('Authenticated user found:', currentUser.uid);
           setUser(currentUser);
           setFormData((prev) => ({
             ...prev,
+            customerName: currentUser.displayName || prev.customerName,
             customerEmail: currentUser.email || prev.customerEmail,
           }));
         }
@@ -243,7 +244,7 @@ export default function Checkout() {
                   name="customerName"
                   value={formData.customerName}
                   onChange={handleInputChange}
-                  className="input-field"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="John Doe"
                   required
                 />
@@ -258,7 +259,7 @@ export default function Checkout() {
                   name="customerEmail"
                   value={formData.customerEmail}
                   onChange={handleInputChange}
-                  className="input-field"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="john@example.com"
                   required
                 />
@@ -273,12 +274,12 @@ export default function Checkout() {
                   name="customerPhone"
                   value={formData.customerPhone}
                   onChange={handleInputChange}
-                  className="input-field"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="1234567890"
                   required
                 />
               </div>
-              <div className="order-summary bg-gray-100 p-4 rounded-lg">
+              <div className="bg-gray-100 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Order Summary</h3>
                 <p className="text-gray-600"><strong>Course:</strong> {courseName}</p>
                 <p className="text-gray-600"><strong>Amount:</strong> ₹{amount}</p>
@@ -287,14 +288,14 @@ export default function Checkout() {
                 <button
                   type="button"
                   onClick={() => router.back()}
-                  className="cancel-button"
+                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading || !user || !sdkLoaded}
-                  className={`proceed-button ${isLoading || !user || !sdkLoaded ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  className={`px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 ${isLoading || !user || !sdkLoaded ? 'opacity-75 cursor-not-allowed' : ''}`}
                 >
                   {isLoading ? (
                     <span className="flex items-center">
