@@ -1,299 +1,83 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { auth, getDatabase, ref, onValue } from '../firebase';
 import { toast } from 'react-toastify';
-import { auth, getDatabase, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, get, ref, child } from '../firebase';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import Link from 'next/link';
-import Image from 'next/image';
 
 export default function Profile() {
-  const router = useRouter();
   const [user, setUser] = useState(null);
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [signupData, setSignupData] = useState({ email: '', password: '', confirmPassword: '' });
-  const [courses, setCourses] = useState([]);
-  const [purchasedCourses, setPurchasedCourses] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [purchases, setPurchases] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
-    console.log('Profile useEffect: Checking authentication');
-    const unsubscribe = auth.onAuthStateChanged(
-      (currentUser) => {
-        console.log('Auth state changed:', currentUser ? currentUser.uid : 'No user');
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (!currentUser) {
+        toast.error('Please log in to view your profile.');
+        router.push('/login');
+      } else {
         setUser(currentUser);
-        if (currentUser) {
-          const fetchPurchases = async () => {
-            const dbRef = ref(getDatabase());
-            const snapshot = await get(child(dbRef, `purchases/${currentUser.uid}`));
-            if (snapshot.exists()) {
-              const purchasedIds = Object.keys(snapshot.val()).map(Number);
-              setPurchasedCourses(purchasedIds);
-            }
-
-            fetch('/courses.json')
-              .then((res) => res.json())
-              .then((data) => {
-                setCourses(data);
-                setIsLoading(false);
-              })
-              .catch((error) => {
-                console.error('Error loading courses:', error);
-                setIsLoading(false);
-                toast.error('Failed to load courses');
-              });
-          };
-          fetchPurchases();
-        } else {
-          setIsLoading(false);
-        }
-      },
-      (error) => {
-        console.error('Auth state change error:', error);
-        toast.error('Authentication error. Please try again.');
+        const db = getDatabase();
+        const purchasesRef = ref(db, `purchases/${currentUser.uid}`);
+        onValue(purchasesRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const purchaseList = Object.values(data);
+            setPurchases(purchaseList);
+          }
+        });
       }
-    );
-    return () => {
-      console.log('Cleaning up profile auth listener');
-      unsubscribe();
-    };
-  }, []);
+    });
+    return () => unsubscribe();
+  }, [router]);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      console.log('Attempting login with email:', loginData.email);
-      await signInWithEmailAndPassword(auth, loginData.email, loginData.password);
-      toast.success('Logged in successfully!');
-      setLoginData({ email: '', password: '' });
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error(error.message);
-    }
-  };
-
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    if (signupData.password !== signupData.confirmPassword) {
-      toast.error('Passwords do not match.');
-      return;
-    }
-    try {
-      console.log('Attempting signup with email:', signupData.email);
-      await createUserWithEmailAndPassword(auth, signupData.email, signupData.password);
-      toast.success('Account created successfully! Please log in.');
-      setSignupData({ email: '', password: '', confirmPassword: '' });
-    } catch (error) {
-      console.error('Signup error:', error);
-      toast.error(error.message);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      console.log('Attempting logout');
-      await signOut(auth);
-      toast.success('Logged out successfully!');
-      setUser(null);
-      setPurchasedCourses([]);
-    } catch (error) {
-      console.error('Logout error:', error);
-      toast.error(error.message);
-    }
-  };
-
-  const handleLoginInputChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSignupInputChange = (e) => {
-    const { name, value } = e.target;
-    setSignupData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const myCourses = courses.filter(course => purchasedCourses.includes(course.id));
-  const newCourses = courses.filter(course => !purchasedCourses.includes(course.id));
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-12">
-          <div className="contact-card">
-            <h1 className="text-3xl font-bold text-center mb-8">Your Profile</h1>
-            {isLoading ? (
-              <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-              </div>
-            ) : user ? (
-              <div>
-                <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-xl font-semibold">Welcome, {user.email}</h2>
-                  <button
-                    onClick={handleLogout}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    Logout
-                  </button>
-                </div>
-                <div className="mb-12">
-                  <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Courses</h2>
-                  {myCourses.length === 0 ? (
-                    <p className="text-gray-600">You haven't enrolled in any courses yet.</p>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {myCourses.map(course => (
-                        <div key={course.id} className="course-card bg-white rounded-xl shadow-lg p-6">
-                          <div className="image-container relative w-full h-48">
-                            <Image
-                              src={course.image || '/default-course.jpg'}
-                              alt={course.name}
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                          </div>
-                          <h3 className="text-xl font-semibold text-gray-800 mt-4 mb-2">{course.name}</h3>
-                          <p className="text-gray-600 text-sm mb-4">{course.description}</p>
-                          <Link href={`/my-courses/${user.uid}/${course.id}`}>
-                            <button className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                              View Course
-                            </button>
-                          </Link>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <h2 className="text-2xl font-semibold text-gray-800 mb-4">New Courses</h2>
-                  {newCourses.length === 0 ? (
-                    <p className="text-gray-600">No new courses available.</p>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {newCourses.map(course => (
-                        <div key={course.id} className="course-card bg-white rounded-xl shadow-lg p-6">
-                          <div className="image-container relative w-full h-48">
-                            <Image
-                              src={course.image || '/default-course.jpg'}
-                              alt={course.name}
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                          </div>
-                          <h3 className="text-xl font-semibold text-gray-800 mt-4 mb-2">{course.name}</h3>
-                          <p className="text-gray-600 text-sm mb-4">{course.description}</p>
-                          <Link href={`/courses/${course.id}`}>
-                            <button className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                              Buy Now
-                            </button>
-                          </Link>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+            Profile
+          </h1>
+          <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              User Details
+            </h2>
+            <p className="text-gray-600 mb-2">
+              <strong>Name:</strong> {user.displayName || 'N/A'}
+            </p>
+            <p className="text-gray-600 mb-6">
+              <strong>Email:</strong> {user.email}
+            </p>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Purchased Courses
+            </h2>
+            {purchases.length > 0 ? (
+              <ul className="space-y-4">
+                {purchases.map((purchase, index) => (
+                  <li key={index} className="bg-gray-100 p-4 rounded-lg">
+                    <p className="text-gray-800">
+                      <strong>Course:</strong> {purchase.courseName}
+                    </p>
+                    <p className="text-gray-600">
+                      <strong>Amount:</strong> ₹{purchase.amount}
+                    </p>
+                    <p className="text-gray-600">
+                      <strong>Order ID:</strong> {purchase.orderId}
+                    </p>
+                    <p className="text-gray-600">
+                      <strong>Date:</strong>{' '}
+                      {new Date(purchase.timestamp).toLocaleString()}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="contact-card p-6">
-                  <h2 className="text-xl font-semibold mb-4">Login</h2>
-                  <form onSubmit={handleLogin} className="space-y-6">
-                    <div>
-                      <label htmlFor="loginEmail" className="block text-sm font-medium text-gray-700 mb-1">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="loginEmail"
-                        name="email"
-                        value={loginData.email}
-                        onChange={handleLoginInputChange}
-                        className="input-field"
-                        placeholder="your.email@example.com"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="loginPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        id="loginPassword"
-                        name="password"
-                        value={loginData.password}
-                        onChange={handleLoginInputChange}
-                        className="input-field"
-                        placeholder="Your password"
-                        required
-                      />
-                    </div>
-                    <div className="flex justify-end">
-                      <button type="submit" className="contact-button">
-                        Login
-                      </button>
-                    </div>
-                  </form>
-                </div>
-                <div className="contact-card p-6">
-                  <h2 className="text-2xl font-semibold mb-4">Sign Up</h2>
-                  <form onSubmit={handleSignup} className="space-y-6">
-                    <div>
-                      <label htmlFor="signupEmail" className="block text-sm font-medium text-gray-700 mb-1">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="signupEmail"
-                        name="email"
-                        value={signupData.email}
-                        onChange={handleSignupInputChange}
-                        className="input-field"
-                        placeholder="your.email@example.com"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="signupPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        id="signupPassword"
-                        name="password"
-                        value={signupData.password}
-                        onChange={handleSignupInputChange}
-                        className="input-field"
-                        placeholder="Your password"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                        Confirm Password
-                      </label>
-                      <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        value={signupData.confirmPassword}
-                        onChange={handleSignupInputChange}
-                        className="input-field"
-                        placeholder="Confirm your password"
-                        required
-                      />
-                    </div>
-                    <div className="flex justify-end">
-                      <button type="submit" className="contact-button">
-                        Sign Up
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
+              <p className="text-gray-600">No purchases found.</p>
             )}
           </div>
         </div>
