@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
-import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, get, ref, child } from '../firebase';
+import { auth, getDatabase, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, get, ref, child } from '../firebase';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Link from 'next/link';
