@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         },
         order_meta: {
           return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?order_id={order_id}&course_id=${courseId}`,
-          notify_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook`, // Optional
+          notify_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook`,
         },
         order_note: `Course: ${courseName}`,
       },
