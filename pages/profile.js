@@ -17,43 +17,57 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        const fetchPurchases = async () => {
-          const dbRef = ref(getDatabase());
-          const snapshot = await get(child(dbRef, `purchases/${currentUser.uid}`));
-          if (snapshot.exists()) {
-            const purchasedIds = Object.keys(snapshot.val()).map(Number);
-            setPurchasedCourses(purchasedIds);
-          }
+    console.log('Profile useEffect: Checking authentication');
+    const unsubscribe = auth.onAuthStateChanged(
+      (currentUser) => {
+        console.log('Auth state changed:', currentUser ? currentUser.uid : 'No user');
+        setUser(currentUser);
+        if (currentUser) {
+          const fetchPurchases = async () => {
+            const dbRef = ref(getDatabase());
+            const snapshot = await get(child(dbRef, `purchases/${currentUser.uid}`));
+            if (snapshot.exists()) {
+              const purchasedIds = Object.keys(snapshot.val()).map(Number);
+              setPurchasedCourses(purchasedIds);
+            }
 
-          fetch('/courses.json')
-            .then((res) => res.json())
-            .then((data) => {
-              setCourses(data);
-              setIsLoading(false);
-            })
-            .catch((error) => {
-              console.error('Error loading courses:', error);
-              setIsLoading(false);
-            });
-        };
-        fetchPurchases();
-      } else {
-        setIsLoading(false);
+            fetch('/courses.json')
+              .then((res) => res.json())
+              .then((data) => {
+                setCourses(data);
+                setIsLoading(false);
+              })
+              .catch((error) => {
+                console.error('Error loading courses:', error);
+                setIsLoading(false);
+                toast.error('Failed to load courses');
+              });
+          };
+          fetchPurchases();
+        } else {
+          setIsLoading(false);
+        }
+      },
+      (error) => {
+        console.error('Auth state change error:', error);
+        toast.error('Authentication error. Please try again.');
       }
-    });
-    return () => unsubscribe();
+    );
+    return () => {
+      console.log('Cleaning up profile auth listener');
+      unsubscribe();
+    };
   }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      console.log('Attempting login with email:', loginData.email);
       await signInWithEmailAndPassword(auth, loginData.email, loginData.password);
       toast.success('Logged in successfully!');
       setLoginData({ email: '', password: '' });
     } catch (error) {
+      console.error('Login error:', error);
       toast.error(error.message);
     }
   };
@@ -65,21 +79,25 @@ export default function Profile() {
       return;
     }
     try {
+      console.log('Attempting signup with email:', signupData.email);
       await createUserWithEmailAndPassword(auth, signupData.email, signupData.password);
       toast.success('Account created successfully! Please log in.');
       setSignupData({ email: '', password: '', confirmPassword: '' });
     } catch (error) {
+      console.error('Signup error:', error);
       toast.error(error.message);
     }
   };
 
   const handleLogout = async () => {
     try {
+      console.log('Attempting logout');
       await signOut(auth);
       toast.success('Logged out successfully!');
       setUser(null);
       setPurchasedCourses([]);
     } catch (error) {
+      console.error('Logout error:', error);
       toast.error(error.message);
     }
   };
