@@ -318,7 +318,7 @@ h1, h2, h3 {
   font-size: 0.875rem;
   color: #9ca3af;
 }
-.footer .flex-wrap {Add commentMore actions
+.footer .flex-wrap {
   display: flex;
   align-items: center;
   gap: 0.5rem;
