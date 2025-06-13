@@ -46,8 +46,17 @@ export default async function handler(req, res) {
     console.log('Cashfree API response:', cashfreeData);
 
     if (!cashfreeResponse.ok || !cashfreeData.payment_session_id) {
-      console.error('Cashfree order creation failed:', cashfreeData);
-      return res.status(500).json({ success: false, error: cashfreeData.message || 'Failed to create Cashfree order' });
+      console.error('Cashfree order creation failed:', {
+        status: cashfreeResponse.status,
+        data: cashfreeData,
+        clientId: process.env.CASHFREE_CLIENT_ID ? '[SET]' : '[UNSET]',
+        clientSecret: process.env.CASHFREE_CLIENT_SECRET ? '[SET]' : '[UNSET]',
+        mode: process.env.NEXT_PUBLIC_CASHFREE_MODE,
+      });
+      return res.status(cashfreeResponse.status || 500).json({
+        success: false,
+        error: cashfreeData.message || 'authentication Failed',
+      });
     }
 
     const db = getDatabase();
@@ -65,7 +74,12 @@ export default async function handler(req, res) {
       orderId,
     });
   } catch (error) {
-    console.error('Create order error:', error);
+    console.error('Create order error:', {
+      message: error.message,
+      stack: error.stack,
+      clientId: process.env.CASHFREE_CLIENT_ID ? '[SET]' : '[UNSET]',
+      clientSecret: process.env.CASHFREE_CLIENT_SECRET ? '[SET]' : '[UNSET]',
+    });
     return res.status(500).json({ success: false, error: 'Internal server error' });
   }
 }
