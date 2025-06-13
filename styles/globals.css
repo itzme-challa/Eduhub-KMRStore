@@ -318,6 +318,23 @@ h1, h2, h3 {
   font-size: 0.875rem;
   color: #9ca3af;
 }
+.footer .flex-wrap {Add commentMore actions
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer .flex-wrap img {
+  height: 1.25rem;
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(50%);
+  transition: filter 0.3s ease;
+}
+
+.footer .flex-wrap img:hover {
+  filter: grayscale(0);
+}
 
 /* Course Detail Page */
 .course-detail {
