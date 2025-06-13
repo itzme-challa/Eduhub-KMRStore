@@ -50,7 +50,8 @@ export default function CourseCard({ course, isPurchased }) {
             {course.name}
           </h2>
         </Link>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
+        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{course.description}</p>
+        <p className="text-gray-500 text-sm mb-4">By {course.instructor} • {course.duration}</p>
         <Rating rating={course.rating} />
         <div className="flex justify-between items-center mt-4">
           <span className="text-2xl font-bold text-indigo-600">₹{course.price}</span>
