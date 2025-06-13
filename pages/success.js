@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { auth, set, ref } from '../firebase';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -9,16 +10,19 @@ export default function Success() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (course_id) {
-      const purchasedCourses = JSON.parse(localStorage.getItem('purchasedCourses') || '[]');
-      if (!purchasedCourses.includes(parseInt(course_id))) {
-        purchasedCourses.push(parseInt(course_id));
-        localStorage.setItem('purchasedCourses', JSON.stringify(purchasedCourses));
-      }
+    if (course_id && auth.currentUser) {
+      const savePurchase = async () => {
+        await set(ref(getDatabase(), `purchases/${auth.currentUser.uid}/${course_id}`), {
+          purchasedAt: new Date().toISOString(),
+        });
+        setIsLoading(false);
+        setTimeout(() => {
+          router.push(`/my-courses/${auth.currentUser.uid}/${course_id}`);
+        }, 3000);
+      };
+      savePurchase();
+    } else {
       setIsLoading(false);
-      setTimeout(() => {
-        router.push(`/courses/${course_id}`);
-      }, 3000);
     }
   }, [course_id, router]);
 
@@ -36,10 +40,10 @@ export default function Success() {
               <>
                 <h1 className="text-3xl font-bold text-center mb-4">Purchase Successful!</h1>
                 <p className="text-center text-gray-600 mb-6">
-                  Congratulations! You can now access your course. Redirecting in 3 seconds...
+                  Congratulations! You can now access your course. Redirecting to your course in 3 seconds...
                 </p>
                 <p className="text-center">
-                  <a href={`/courses/${course_id}`} className="text-indigo-600 hover:text-indigo-800 transition-colors">
+                  <a href={`/my-courses/${auth.currentUser?.uid}/${course_id}`} className="text-indigo-600 hover:text-indigo-800 transition-colors">
                     Go to course now
                   </a>
                 </p>
