@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
+import { auth } from '../firebase';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import Script from 'next/script';
 
 export default function Checkout() {
   const router = useRouter();
@@ -13,14 +15,23 @@ export default function Checkout() {
     customerEmail: '',
     customerPhone: '',
   });
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
-    script.async = true;
-    script.onload = () => console.log('Cashfree SDK loaded');
-    document.body.appendChild(script);
-  }, []);
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (!currentUser) {
+        toast.error('Please log in to proceed with the purchase.');
+        router.push('/profile');
+      } else {
+        setUser(currentUser);
+        setFormData((prev) => ({
+          ...prev,
+          customerEmail: currentUser.email || prev.customerEmail,
+        }));
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -45,7 +56,7 @@ export default function Checkout() {
 
   const handleProceedToPayment = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm() || !user) return;
 
     setIsLoading(true);
     try {
@@ -59,6 +70,7 @@ export default function Checkout() {
           customerName: formData.customerName,
           customerEmail: formData.customerEmail,
           customerPhone: formData.customerPhone,
+          userId: user.uid,
         }),
       });
 
@@ -70,7 +82,9 @@ export default function Checkout() {
       if (!window?.Cashfree || !paymentSessionId) {
         throw new Error('Cashfree SDK not loaded or session missing');
       }
-      const cashfree = window.Cashfree({ mode: 'production' });
+      const cashfree = new window.Cashfree({ 
+        mode: process.env.NEXT_PUBLIC_CASHFREE_MODE || 'SANDBOX' 
+      });
       cashfree.checkout({
         paymentSessionId,
         redirectTarget: '_self',
@@ -83,8 +97,23 @@ export default function Checkout() {
     }
   };
 
+  if (!courseId || !courseName || !amount) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow">
+          <div className="container mx-auto px-4 py-12">
+            <p className="text-center text-xl text-gray-600">Invalid course details</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
+      <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="beforeInteractive" />
       <Navbar />
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-12">
@@ -152,8 +181,8 @@ export default function Checkout() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className={`proceed-button ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  disabled={isLoading || !user}
+                  className={`proceed-button ${isLoading || !user ? 'opacity-75 cursor-not-allowed' : ''}`}
                 >
                   {isLoading ? (
                     <span className="flex items-center">
