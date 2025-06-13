@@ -1,22 +1,34 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { auth, get, ref, child } from '../firebase';
 import Rating from './Rating';
 
-export default function CourseCard({ course, isPurchased }) {
+export default function CourseCard({ course }) {
   const router = useRouter();
+  const [isPurchased, setIsPurchased] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
-    script.async = true;
-    script.onload = () => console.log('Cashfree SDK loaded');
-    document.body.appendChild(script);
-  }, []);
+    const checkPurchaseStatus = async () => {
+      if (auth.currentUser) {
+        const dbRef = ref(getDatabase());
+        const snapshot = await get(child(dbRef, `purchases/${auth.currentUser.uid}/${course.id}`));
+        setIsPurchased(snapshot.exists());
+      }
+      setIsLoading(false);
+    };
+    checkPurchaseStatus();
+  }, [course.id]);
 
   const handleBuyNow = () => {
+    if (!auth.currentUser) {
+      toast.error('Please log in to purchase this course.');
+      router.push('/profile');
+      return;
+    }
     router.push({
       pathname: '/checkout',
       query: {
@@ -28,7 +40,12 @@ export default function CourseCard({ course, isPurchased }) {
   };
 
   const handleViewCourse = () => {
-    router.push(`/courses/${course.id}`);
+    if (!auth.currentUser) {
+      toast.error('Please log in to view this course.');
+      router.push('/profile');
+      return;
+    }
+    router.push(`/my-courses/${auth.currentUser.uid}/${course.id}`);
   };
 
   return (
@@ -55,7 +72,9 @@ export default function CourseCard({ course, isPurchased }) {
         <Rating rating={course.rating} />
         <div className="flex justify-between items-center mt-4">
           <span className="text-2xl font-bold text-indigo-600">₹{course.price}</span>
-          {isPurchased ? (
+          {isLoading ? (
+            <div className="animate-pulse bg-gray-200 h-10 w-24 rounded-lg"></div>
+          ) : isPurchased ? (
             <button
               onClick={handleViewCourse}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
