@@ -134,9 +134,7 @@ export default function Checkout() {
         throw new Error('Payment configuration error: Invalid mode');
       }
 
-      const cashfree = new window.Cashfree({ 
-        mode: cashfreeMode
-      });
+      const cashfree = new window.Cashfree({ mode: cashfreeMode });
       console.log('Initializing Cashfree checkout with session ID:', paymentSessionId, 'mode:', cashfreeMode);
 
       try {
@@ -148,7 +146,9 @@ export default function Checkout() {
         setFormData({ customerName: '', customerEmail: '', customerPhone: '' });
       } catch (checkoutError) {
         console.error('Cashfree checkout error:', checkoutError);
-        throw new Error(`Payment initiation failed: ${checkoutError.message || 'Unknown error'}`);
+        console.warn('Falling back to direct redirect for payment');
+        const baseUrl = cashfreeMode === 'PROD' ? 'https://api.cashfree.com' : 'https://sandbox.cashfree.com';
+        window.location.href = `${baseUrl}/pg/orders/sessions/${paymentSessionId}`;
       }
     } catch (error) {
       console.error('Checkout error:', error);
@@ -157,6 +157,8 @@ export default function Checkout() {
         toast.error('Please check your payment provider credentials and try again.');
       } else if (error.message.includes('Invalid mode')) {
         toast.error('Payment system misconfigured. Please contact support.');
+      } else if (error.message.includes('return_url')) {
+        toast.error('Payment configuration error. Please contact support.');
       }
     } finally {
       setIsLoading(false);
