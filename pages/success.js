@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { auth, set, ref } from '../firebase';
+import { auth, getDatabase, set, ref } from '../firebase';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
