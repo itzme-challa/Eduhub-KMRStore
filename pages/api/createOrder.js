@@ -8,8 +8,21 @@ export default async function handler(req, res) {
 
   const { courseId, courseName, amount, customerName, customerEmail, customerPhone, userId } = req.body;
 
-  if (!courseId || !courseName || !amount || !customerName || !customerEmail || !customerPhone || !userId) {
-    return res.status(400).json({ success: false, error: 'Missing required fields' });
+  // Validate required fields
+  const missingFields = [];
+  if (!courseId) missingFields.push('courseId');
+  if (!courseName) missingFields.push('courseName');
+  if (!amount) missingFields.push('amount');
+  if (!customerName) missingFields.push('customerName');
+  if (!customerEmail) missingFields.push('customerEmail');
+  if (!customerPhone) missingFields.push('customerPhone');
+  if (!userId) missingFields.push('userId');
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({ 
+      success: false, 
+      error: `Missing required fields: ${missingFields.join(', ')}` 
+    });
   }
 
   const orderId = `ORDER_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
