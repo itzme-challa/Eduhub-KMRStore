@@ -20,28 +20,34 @@ export default function Checkout() {
 
   useEffect(() => {
     console.log('Checkout useEffect: Checking authentication');
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (!currentUser) {
-        console.log('No authenticated user found, redirecting to /profile');
-        toast.error('Please log in to proceed with the purchase.');
-        router.push('/profile');
-      } else {
-        console.log('Authenticated user found:', currentUser.uid);
-        setUser(currentUser);
-        setFormData((prev) => ({
-          ...prev,
-          customerEmail: currentUser.email || prev.customerEmail,
-        }));
+    const unsubscribe = auth.onAuthStateChanged(
+      (currentUser) => {
+        if (!currentUser) {
+          console.log('No authenticated user found, redirecting to /profile');
+          toast.error('Please log in to proceed with the purchase.');
+          router.push('/profile');
+        } else {
+          console.log('Authenticated user found:', currentUser.uid);
+          setUser(currentUser);
+          setFormData((prev) => ({
+            ...prev,
+            customerEmail: currentUser.email || prev.customerEmail,
+          }));
+        }
+      },
+      (error) => {
+        console.error('Auth state change error:', error);
+        toast.error('Authentication error. Please try again.');
       }
-    }, (error) => {
-      console.error('Auth state change error:', error);
-      toast.error('Authentication error. Please try again.');
-    });
-    return () => unsubscribe();
+    );
+    return () => {
+      console.log('Cleaning up auth listener');
+      unsubscribe();
+    };
   }, [router]);
 
   useEffect(() => {
-    console.log('Button state - isLoading:', isLoading, 'user:', !!user, 'sdkLoaded:', sdkLoaded);
+    console.log('Button state - isLoading:', isLoading, 'user:', !!user, 'sdkLoaded:', sdkLoaded, 'user.uid:', user?.uid);
   }, [isLoading, user, sdkLoaded]);
 
   const handleInputChange = (e) => {
