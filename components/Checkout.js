@@ -1,4 +1,3 @@
-// components/Checkout.js
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
@@ -7,7 +6,7 @@ import Footer from './Footer';
 
 export default function Checkout() {
   const router = useRouter();
-  const { productId, productName, amount, telegramLink } = router.query;
+  const { courseId, courseName, amount } = router.query;
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     customerName: '',
@@ -54,10 +53,9 @@ export default function Checkout() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productId,
-          productName,
+          courseId,
+          courseName,
           amount: parseFloat(amount),
-          telegramLink,
           customerName: formData.customerName,
           customerEmail: formData.customerEmail,
           customerPhone: formData.customerPhone,
@@ -141,7 +139,7 @@ export default function Checkout() {
               </div>
               <div className="order-summary bg-gray-100 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Order Summary</h3>
-                <p className="text-gray-600"><strong>Product:</strong> {productName}</p>
+                <p className="text-gray-600"><strong>Course:</strong> {courseName}</p>
                 <p className="text-gray-600"><strong>Amount:</strong> ₹{amount}</p>
               </div>
               <div className="flex justify-end space-x-4">
