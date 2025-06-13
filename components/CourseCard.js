@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { auth, get, ref, child } from '../firebase';
+import { auth, getDatabase, get, ref, child } from '../firebase';
 import Rating from './Rating';
 
 export default function CourseCard({ course }) {
