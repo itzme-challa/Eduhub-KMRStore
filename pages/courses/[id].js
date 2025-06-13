@@ -12,14 +12,16 @@ export default function CourseDetail() {
   const [course, setCourse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPurchased, setIsPurchased] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     if (id) {
-      // Check if course is purchased
       const purchasedCourses = JSON.parse(localStorage.getItem('purchasedCourses') || '[]');
       setIsPurchased(purchasedCourses.includes(parseInt(id)));
 
-      // Load course data
+      const savedProgress = JSON.parse(localStorage.getItem(`courseProgress_${id}`) || '{}');
+      setProgress(savedProgress.progress || 0);
+
       fetch('/courses.json')
         .then((res) => res.json())
         .then((data) => {
@@ -44,6 +46,23 @@ export default function CourseDetail() {
         amount: course.price,
       },
     });
+  };
+
+  const handleContentComplete = (contentId) => {
+    if (!isPurchased) return;
+    const totalItems = course.content.modules.reduce((acc, module) => 
+      acc + module.items.length, 0
+    );
+    const completedItems = JSON.parse(localStorage.getItem(`courseProgress_${id}`) || '{}').completedItems || [];
+    if (!completedItems.includes(contentId)) {
+      completedItems.push(contentId);
+      const newProgress = Math.round((completedItems.length / totalItems) * 100);
+      localStorage.setItem(`courseProgress_${id}`, JSON.stringify({
+        progress: newProgress,
+        completedItems
+      }));
+      setProgress(newProgress);
+    }
   };
 
   if (isLoading) {
@@ -85,54 +104,49 @@ export default function CourseDetail() {
                 <p><strong>Instructor:</strong> {course.instructor}</p>
                 <p><strong>Category:</strong> {course.category}</p>
                 <p><strong>Duration:</strong> {course.duration}</p>
+                <p><strong>Level:</strong> {course.level}</p>
               </div>
+              {isPurchased && (
+                <div className="progress mb-6">
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">Your Progress</h3>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div 
+                      className="bg-indigo-600 h-2.5 rounded-full" 
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">{progress}% Complete</p>
+                </div>
+              )}
               {isPurchased ? (
                 <div className="course-content">
                   <h3 className="text-lg font-semibold text-gray-700 mb-4">Course Content</h3>
-                  <div className="space-y-4">
-                    {course.content.pdfs.length > 0 && (
-                      <div>
-                        <h4 className="text-md font-medium text-gray-600 mb-2">PDF Materials</h4>
-                        <ul className="list-disc list-inside space-y-1 text-gray-600">
-                          {course.content.pdfs.map((pdf, index) => (
-                            <li key={index}>
-                              <a href={pdf.url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800">
-                                {pdf.title}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {course.content.videos.length > 0 && (
-                      <div>
-                        <h4 className="text-md font-medium text-gray-600 mb-2">Video Lessons</h4>
-                        <ul className="list-disc list-inside space-y-1 text-gray-600">
-                          {course.content.videos.map((video, index) => (
-                            <li key={index}>
-                              <a href={video.url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800">
-                                {video.title}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {course.content.audio.length > 0 && (
-                      <div>
-                        <h4 className="text-md font-medium text-gray-600 mb-2">Audio Resources</h4>
-                        <ul className="list-disc list-inside space-y-1 text-gray-600">
-                          {course.content.audio.map((audio, index) => (
-                            <li key={index}>
-                              <a href={audio.url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800">
-                                {audio.title}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
+                  {course.content.modules.map((module, index) => (
+                    <div key={index} className="mb-6">
+                      <h4 className="text-md font-medium text-gray-600 mb-2">{module.title}</h4>
+                      <ul className="list-disc list-inside space-y-2 text-gray-600">
+                        {module.items.map((item) => (
+                          <li key={item.id} className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={JSON.parse(localStorage.getItem(`courseProgress_${id}`) || '{}').completedItems?.includes(item.id)}
+                              onChange={() => handleContentComplete(item.id)}
+                              disabled={!isPurchased}
+                              className="h-4 w-4 text-indigo-600"
+                            />
+                            <a 
+                              href={item.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="text-indigo-600 hover:text-indigo-800"
+                            >
+                              {item.title} ({item.type})
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="features">
