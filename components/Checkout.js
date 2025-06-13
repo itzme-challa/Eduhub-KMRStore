@@ -134,11 +134,11 @@ export default function Checkout() {
       console.log('Initializing Cashfree checkout with session ID:', paymentSessionId);
 
       try {
-        await cashfree.checkout({
+        const checkoutResult = await cashfree.checkout({
           paymentSessionId,
-          redirectTarget: '_self', // Try '_top' or '_blank' if '_self' fails
+          redirectTarget: '_top', // Changed to '_top' to avoid iframe issues
         });
-        console.log('Cashfree checkout initiated successfully');
+        console.log('Cashfree checkout initiated successfully, result:', checkoutResult);
         setFormData({ customerName: '', customerEmail: '', customerPhone: '' });
       } catch (checkoutError) {
         console.error('Cashfree checkout error:', checkoutError);
